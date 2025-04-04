@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Table, 
@@ -42,7 +41,6 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
   const [currentPage, setCurrentPage] = useState(1);
   const sitesPerPage = 10;
 
-  // Paginación
   const indexOfLastSite = currentPage * sitesPerPage;
   const indexOfFirstSite = indexOfLastSite - sitesPerPage;
   const currentSites = sites.slice(indexOfFirstSite, indexOfLastSite);
@@ -57,7 +55,6 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
     let sortableSites = [...currentSites];
     if (sortConfig !== null) {
       sortableSites.sort((a, b) => {
-        // Gestion spéciale pour les booléens
         if (typeof a[sortConfig.key] === 'boolean' && typeof b[sortConfig.key] === 'boolean') {
           const aValue = a[sortConfig.key] as boolean;
           const bValue = b[sortConfig.key] as boolean;
@@ -66,7 +63,6 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
             : (aValue === bValue ? 0 : aValue ? 1 : -1);
         }
         
-        // Gestion des valeurs non définies
         const aValue = a[sortConfig.key] ?? '';
         const bValue = b[sortConfig.key] ?? '';
         
@@ -254,7 +250,6 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
             </TableBody>
           </Table>
         ) : (
-          // Vue de planification
           <div className="overflow-auto">
             <Table>
               <TableHeader>
@@ -301,12 +296,17 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
         )}
       </div>
 
-      {/* Pagination */}
       {sites.length > sitesPerPage && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious onClick={handlePrevPage} disabled={currentPage === 1} />
+              {currentPage === 1 ? (
+                <Button variant="outline" size="icon" disabled className="cursor-not-allowed">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              ) : (
+                <PaginationPrevious onClick={handlePrevPage} />
+              )}
             </PaginationItem>
             
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -321,7 +321,13 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
             ))}
             
             <PaginationItem>
-              <PaginationNext onClick={handleNextPage} disabled={currentPage === totalPages} />
+              {currentPage === totalPages ? (
+                <Button variant="outline" size="icon" disabled className="cursor-not-allowed">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <PaginationNext onClick={handleNextPage} />
+              )}
             </PaginationItem>
           </PaginationContent>
         </Pagination>
