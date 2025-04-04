@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { parametersService } from '@/services/parametersService';
+import { parametersService, activityCategories } from '@/services/parametersService';
 import { OverarchingParameter } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,15 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Edit, Trash, Plus } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Edit, Trash, Plus, Calculator, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const OverarchingParameters = () => {
   const queryClient = useQueryClient();
@@ -39,7 +46,7 @@ const OverarchingParameters = () => {
     operationDuration: 12,
     numberOfSites: 0,
     riskLevel: 1,
-    minimumRequiredInterval: 3,
+    minimumRequiredInterval: 0,
     targetedNumberOfSites: 0,
     feasibleNumberOfSites: 0,
     adjustedRequiredInterval: 0,
@@ -50,6 +57,24 @@ const OverarchingParameters = () => {
     queryKey: ['overarching-parameters'],
     queryFn: parametersService.getOverarchingParameters
   });
+
+  const { data: categories = [] } = useQuery<string[]>({
+    queryKey: ['activity-categories'],
+    queryFn: parametersService.getActivityCategories
+  });
+
+  // Fonction de calcul automatique des valeurs dérivées
+  const calculateDerivedValues = () => {
+    const updatedData = parametersService.calculateDerivedValues(formData);
+    setFormData(updatedData);
+  };
+
+  // Mettre à jour les valeurs dérivées lorsque les valeurs de base changent
+  useEffect(() => {
+    if (formData.operationDuration && formData.riskLevel && formData.numberOfSites) {
+      calculateDerivedValues();
+    }
+  }, [formData.operationDuration, formData.riskLevel, formData.numberOfSites, formData.feasibleNumberOfSites]);
 
   const createParameterMutation = useMutation({
     mutationFn: (newParameter: Omit<OverarchingParameter, 'id'>) => 
@@ -89,7 +114,7 @@ const OverarchingParameters = () => {
       operationDuration: 12,
       numberOfSites: 0,
       riskLevel: 1,
-      minimumRequiredInterval: 3,
+      minimumRequiredInterval: 0,
       targetedNumberOfSites: 0,
       feasibleNumberOfSites: 0,
       adjustedRequiredInterval: 0,
@@ -100,24 +125,18 @@ const OverarchingParameters = () => {
   };
 
   const handleAddOrEdit = () => {
-    // Calcul automatique du ratio de faisabilité
-    const feasibilityRatio = formData.targetedNumberOfSites && formData.feasibleNumberOfSites 
-      ? parseFloat((formData.feasibleNumberOfSites / formData.targetedNumberOfSites).toFixed(2))
-      : 0;
+    // S'assurer que toutes les valeurs dérivées sont calculées
+    const updatedData = parametersService.calculateDerivedValues(formData);
 
     if (selectedParameterId) {
       // Édition
       updateParameterMutation.mutate({
-        ...formData,
-        id: selectedParameterId,
-        feasibilityRatio
+        ...updatedData,
+        id: selectedParameterId
       } as OverarchingParameter);
     } else {
       // Ajout
-      createParameterMutation.mutate({
-        ...formData,
-        feasibilityRatio
-      } as Omit<OverarchingParameter, 'id'>);
+      createParameterMutation.mutate(updatedData as Omit<OverarchingParameter, 'id'>);
     }
   };
 
@@ -138,6 +157,20 @@ const OverarchingParameters = () => {
     }
   };
 
+  // Composant pour afficher les tooltips d'information
+  const InfoTooltip = ({ content }: { content: string }) => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <HelpCircle className="h-4 w-4 ml-1 text-gray-400" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="max-w-xs">{content}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -150,6 +183,28 @@ const OverarchingParameters = () => {
         </Button>
       </div>
 
+      <Card className="mb-4">
+        <CardContent className="pt-6">
+          <p className="mb-2">
+            <strong>Légende des calculs automatiques :</strong>
+          </p>
+          <ul className="list-disc pl-5 space-y-2 text-sm">
+            <li>
+              <strong>Minimum Required Interval</strong>: Operation Duration ÷ Risk Level
+            </li>
+            <li>
+              <strong>Targeted Sites/Month</strong>: Number of Sites ÷ Minimum Required Interval
+            </li>
+            <li>
+              <strong>Adjusted Interval</strong>: Le résultat de Operation Duration ÷ (Minimum Required Frequency × Feasibility Ratio), avec un minimum de 1
+            </li>
+            <li>
+              <strong>Feasibility Ratio</strong>: Feasible Sites ÷ Targeted Sites
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+
       {isLoading ? (
         <div className="text-center py-10">Chargement des paramètres...</div>
       ) : (
@@ -160,14 +215,38 @@ const OverarchingParameters = () => {
                 <TableHead>CSP Activity Number</TableHead>
                 <TableHead>Field Office</TableHead>
                 <TableHead>Activity Category</TableHead>
-                <TableHead>Duration (months)</TableHead>
-                <TableHead>Sites</TableHead>
-                <TableHead>Risk Level</TableHead>
-                <TableHead>Min. Interval</TableHead>
-                <TableHead>Target Sites/Month</TableHead>
-                <TableHead>Feasible Sites/Month</TableHead>
-                <TableHead>Adjusted Interval</TableHead>
-                <TableHead>Feasibility Ratio</TableHead>
+                <TableHead>
+                  Duration (months)
+                  <InfoTooltip content="Durée de l'opération en mois" />
+                </TableHead>
+                <TableHead>
+                  Sites
+                  <InfoTooltip content="Nombre total de sites dans cette catégorie d'activité" />
+                </TableHead>
+                <TableHead>
+                  Risk Level
+                  <InfoTooltip content="1=Low, 2=Medium, 3=High" />
+                </TableHead>
+                <TableHead>
+                  Min. Interval
+                  <InfoTooltip content="Operation Duration ÷ Risk Level" />
+                </TableHead>
+                <TableHead>
+                  Target Sites/Month
+                  <InfoTooltip content="Number of Sites ÷ Minimum Required Interval" />
+                </TableHead>
+                <TableHead>
+                  Feasible Sites/Month
+                  <InfoTooltip content="Nombre de sites qu'il est réaliste de visiter par mois" />
+                </TableHead>
+                <TableHead>
+                  Adjusted Interval
+                  <InfoTooltip content="Intervalle ajusté en fonction de la capacité réelle" />
+                </TableHead>
+                <TableHead>
+                  Feasibility Ratio
+                  <InfoTooltip content="Feasible Sites ÷ Targeted Sites" />
+                </TableHead>
                 <TableHead className="w-[80px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -229,7 +308,7 @@ const OverarchingParameters = () => {
 
       {/* Dialog pour ajouter ou modifier un paramètre */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{selectedParameterId ? 'Modifier le paramètre' : 'Ajouter un nouveau paramètre'}</DialogTitle>
             <DialogDescription>
@@ -267,25 +346,38 @@ const OverarchingParameters = () => {
               <Label htmlFor="activityCategory" className="text-right">
                 Activity Category
               </Label>
-              <Input
-                id="activityCategory"
+              <Select
                 value={formData.activityCategory || ''}
-                onChange={(e) => setFormData({ ...formData, activityCategory: e.target.value })}
-                className="col-span-3"
-              />
+                onValueChange={(value) => setFormData({ ...formData, activityCategory: value })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Sélectionnez une catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="operationDuration" className="text-right">
-                Operation Duration (months)
+                Operation Duration
               </Label>
-              <Input
-                id="operationDuration"
-                type="number"
-                value={formData.operationDuration || 0}
-                onChange={(e) => setFormData({ ...formData, operationDuration: parseInt(e.target.value) })}
-                className="col-span-3"
-              />
+              <div className="col-span-3 flex items-center gap-2">
+                <Input
+                  id="operationDuration"
+                  type="number"
+                  min="1"
+                  value={formData.operationDuration || 0}
+                  onChange={(e) => setFormData({ ...formData, operationDuration: parseInt(e.target.value) })}
+                  className="flex-1"
+                />
+                <span className="text-sm text-gray-500">mois</span>
+              </div>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
@@ -295,6 +387,7 @@ const OverarchingParameters = () => {
               <Input
                 id="numberOfSites"
                 type="number"
+                min="0"
                 value={formData.numberOfSites || 0}
                 onChange={(e) => setFormData({ ...formData, numberOfSites: parseInt(e.target.value) })}
                 className="col-span-3"
@@ -320,30 +413,29 @@ const OverarchingParameters = () => {
               </Select>
             </div>
             
+            {/* Cette section affiche les valeurs calculées */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="minimumRequiredInterval" className="text-right">
-                Min. Required Interval (months)
+              <Label className="text-right font-semibold">
+                Min. Required Interval
               </Label>
-              <Input
-                id="minimumRequiredInterval"
-                type="number"
-                value={formData.minimumRequiredInterval || 0}
-                onChange={(e) => setFormData({ ...formData, minimumRequiredInterval: parseInt(e.target.value) })}
-                className="col-span-3"
-              />
+              <div className="col-span-3 flex items-center">
+                <span className="px-3 py-2 border rounded-md bg-gray-50 w-full">
+                  {formData.minimumRequiredInterval} mois
+                </span>
+                <InfoTooltip content="Operation Duration ÷ Risk Level" />
+              </div>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="targetedNumberOfSites" className="text-right">
-                Targeted Sites/Month
+              <Label className="text-right font-semibold">
+                Target Sites/Month
               </Label>
-              <Input
-                id="targetedNumberOfSites"
-                type="number"
-                value={formData.targetedNumberOfSites || 0}
-                onChange={(e) => setFormData({ ...formData, targetedNumberOfSites: parseInt(e.target.value) })}
-                className="col-span-3"
-              />
+              <div className="col-span-3 flex items-center">
+                <span className="px-3 py-2 border rounded-md bg-gray-50 w-full">
+                  {formData.targetedNumberOfSites} sites
+                </span>
+                <InfoTooltip content="Number of Sites ÷ Minimum Required Interval" />
+              </div>
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
@@ -353,6 +445,7 @@ const OverarchingParameters = () => {
               <Input
                 id="feasibleNumberOfSites"
                 type="number"
+                min="0"
                 value={formData.feasibleNumberOfSites || 0}
                 onChange={(e) => setFormData({ ...formData, feasibleNumberOfSites: parseInt(e.target.value) })}
                 className="col-span-3"
@@ -360,18 +453,46 @@ const OverarchingParameters = () => {
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="adjustedRequiredInterval" className="text-right">
-                Adjusted Required Interval
+              <Label className="text-right font-semibold">
+                Adjusted Interval
               </Label>
-              <Input
-                id="adjustedRequiredInterval"
-                type="number"
-                value={formData.adjustedRequiredInterval || 0}
-                onChange={(e) => setFormData({ ...formData, adjustedRequiredInterval: parseInt(e.target.value) })}
-                className="col-span-3"
-              />
+              <div className="col-span-3 flex items-center">
+                <span className="px-3 py-2 border rounded-md bg-gray-50 w-full">
+                  {formData.adjustedRequiredInterval} mois
+                </span>
+                <InfoTooltip content="Intervalle ajusté en fonction de la capacité réelle" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-semibold">
+                Feasibility Ratio
+              </Label>
+              <div className="col-span-3 flex items-center">
+                <span className={`px-3 py-2 border rounded-md w-full ${
+                  formData.feasibilityRatio >= 0.9 ? 'bg-green-50 text-green-700' :
+                  formData.feasibilityRatio >= 0.7 ? 'bg-yellow-50 text-yellow-700' :
+                  'bg-red-50 text-red-700'
+                }`}>
+                  {formData.feasibilityRatio ? `${(formData.feasibilityRatio * 100).toFixed(0)}%` : '0%'}
+                </span>
+                <InfoTooltip content="Feasible Sites ÷ Targeted Sites" />
+              </div>
+            </div>
+
+            <div className="col-span-4 mt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full flex items-center justify-center gap-2"
+                onClick={calculateDerivedValues}
+              >
+                <Calculator className="h-4 w-4" />
+                Recalculer toutes les valeurs
+              </Button>
             </div>
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={resetFormAndCloseDialog}>
               Annuler
