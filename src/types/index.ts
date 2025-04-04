@@ -52,6 +52,15 @@ export interface Site {
   sitesToVisit?: number;
   monitoringPriority?: string;
   requiredFrequency?: string;
+  // Nouveaux champs pour la planification
+  planCount?: number;
+  monthsRemaining?: number;
+  sitesToBePlanned?: number;
+  visitsToBePlanned?: number;
+  sitesVisitedOnce?: number;
+  sitesVisitedTwice?: number;
+  sitesVisitedThreeTimes?: number;
+  sitesVisitedFourOrMoreTimes?: number;
 }
 
 export interface Project {
@@ -71,6 +80,22 @@ export interface ConfigSetting {
   value: string;
   description: string;
   category: string;
+}
+
+// Nouveau type pour les paramètres généraux
+export interface OverarchingParameter {
+  id: string;
+  cspActivityNumber: string;
+  fieldOffice: string;
+  activityCategory: string;
+  operationDuration: number;
+  numberOfSites: number;
+  riskLevel: number;
+  minimumRequiredInterval: number;
+  targetedNumberOfSites: number;
+  feasibleNumberOfSites: number;
+  adjustedRequiredInterval: number;
+  feasibilityRatio: number;
 }
 
 // Format spécifique pour l'importation Excel

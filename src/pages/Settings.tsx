@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { settingsService } from '@/services/dataService';
 import { ConfigSetting } from '@/types';
 import { toast } from 'sonner';
+import OverarchingParameters from '@/components/settings/OverarchingParameters';
 
 const Settings = () => {
   const queryClient = useQueryClient();
@@ -81,14 +82,19 @@ const Settings = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue={categories[0] || "Général"}>
+      <Tabs defaultValue="overarching">
         <TabsList className="mb-4">
+          <TabsTrigger value="overarching">Paramètres généraux</TabsTrigger>
           {categories.map(category => (
             <TabsTrigger key={category} value={category}>
               {category}
             </TabsTrigger>
           ))}
         </TabsList>
+
+        <TabsContent value="overarching">
+          <OverarchingParameters />
+        </TabsContent>
 
         {categories.map(category => (
           <TabsContent key={category} value={category}>
