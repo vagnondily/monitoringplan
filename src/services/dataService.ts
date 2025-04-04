@@ -1,35 +1,105 @@
-
-import { Site, Project, ConfigSetting } from '@/types';
+import { Site, Project, ConfigSetting, ExcelImportFormat } from '@/types';
 import { toast } from 'sonner';
 
 // Données de simulation pour les sites
 const mockSites: Site[] = [
   {
     id: '1',
-    name: 'Site Paris',
-    location: 'Paris, France',
+    name: 'Site Antananarivo',
+    location: 'Antananarivo, Madagascar',
+    region: 'Analamanga',
+    district: 'Antananarivo Renivohitra',
+    commune: 'Antananarivo',
     status: 'Actif',
     lastUpdate: '2025-04-03',
     ipAddress: '192.168.1.1',
-    manager: 'Jean Dupont'
+    manager: 'Jean Dupont',
+    activeSite: true,
+    sitesToVisit: 3,
+    visitCount: 1,
+    monitoringPriority: 'High',
+    requiredFrequency: 'Monthly',
+    lastVisitDate: '2025-03-15',
+    finalScore: 2,
+    priority: 'High'
   },
   {
     id: '2',
-    name: 'Site Lyon',
-    location: 'Lyon, France',
+    name: 'Site Toamasina',
+    location: 'Toamasina, Madagascar',
+    region: 'Atsinanana',
+    district: 'Toamasina I',
+    commune: 'Toamasina',
     status: 'En maintenance',
     lastUpdate: '2025-04-02',
     ipAddress: '192.168.1.2',
-    manager: 'Marie Laurent'
+    manager: 'Marie Laurent',
+    activeSite: true,
+    sitesToVisit: 2,
+    visitCount: 0,
+    monitoringPriority: 'Medium',
+    requiredFrequency: 'Quarterly',
+    lastVisitDate: '2025-02-10',
+    finalScore: 1,
+    priority: 'Normal'
   },
   {
     id: '3',
-    name: 'Site Marseille',
-    location: 'Marseille, France',
+    name: 'Site Mahajanga',
+    location: 'Mahajanga, Madagascar',
+    region: 'Boeny',
+    district: 'Mahajanga I',
+    commune: 'Mahajanga',
     status: 'Actif',
     lastUpdate: '2025-04-01',
     ipAddress: '192.168.1.3',
-    manager: 'Pierre Martin'
+    manager: 'Pierre Martin',
+    activeSite: false,
+    sitesToVisit: 0,
+    visitCount: 0,
+    monitoringPriority: 'Low',
+    requiredFrequency: 'Biannual',
+    finalScore: 0,
+    priority: 'Low'
+  },
+  {
+    id: '4',
+    name: 'Site Fianarantsoa',
+    location: 'Fianarantsoa, Madagascar',
+    region: 'Haute Matsiatra',
+    district: 'Fianarantsoa I',
+    commune: 'Fianarantsoa',
+    status: 'Actif',
+    lastUpdate: '2025-03-28',
+    ipAddress: '192.168.1.4',
+    manager: 'Sophie Rakoto',
+    activeSite: true,
+    sitesToVisit: 4,
+    visitCount: 2,
+    monitoringPriority: 'High',
+    requiredFrequency: 'Monthly',
+    lastVisitDate: '2025-03-25',
+    finalScore: 2,
+    priority: 'High'
+  },
+  {
+    id: '5',
+    name: 'Site Toliara',
+    location: 'Toliara, Madagascar',
+    region: 'Atsimo-Andrefana',
+    district: 'Toliara I',
+    commune: 'Toliara',
+    status: 'Inactif',
+    lastUpdate: '2025-03-20',
+    ipAddress: '192.168.1.5',
+    manager: 'Luc Andria',
+    activeSite: false,
+    sitesToVisit: 0,
+    visitCount: 0,
+    monitoringPriority: 'Low',
+    requiredFrequency: 'Annual',
+    finalScore: 0,
+    priority: 'Low'
   }
 ];
 
@@ -122,7 +192,9 @@ export const siteService = {
       const newSite = {
         ...site,
         id: `${mockSites.length + 1}`,
-        lastUpdate: new Date().toISOString().split('T')[0]
+        lastUpdate: new Date().toISOString().split('T')[0],
+        visitCount: site.visitCount || 0,
+        sitesToVisit: site.sitesToVisit || 0
       };
       mockSites.push(newSite);
       toast.success('Site créé avec succès');
@@ -172,7 +244,51 @@ export const siteService = {
   importFromExcel: (file: File): Promise<Site[]> => {
     return new Promise((resolve) => {
       // Simulation de l'importation d'un fichier Excel
+      // Dans une application réelle, nous analyserions ici le fichier Excel
+      // et convertirions les données en objets Site
+      
       setTimeout(() => {
+        // Simulation d'ajout de nouveaux sites
+        const newSites: Site[] = [
+          {
+            id: `${mockSites.length + 1}`,
+            name: 'Site Importé 1',
+            location: 'Antsirabe, Madagascar',
+            region: 'Vakinankaratra',
+            district: 'Antsirabe I',
+            commune: 'Antsirabe',
+            status: 'Actif',
+            lastUpdate: new Date().toISOString().split('T')[0],
+            ipAddress: '192.168.1.6',
+            manager: 'Importé Manager 1',
+            activeSite: true,
+            sitesToVisit: 2,
+            visitCount: 0,
+            monitoringPriority: 'Medium',
+            requiredFrequency: 'Quarterly'
+          },
+          {
+            id: `${mockSites.length + 2}`,
+            name: 'Site Importé 2',
+            location: 'Ambositra, Madagascar',
+            region: 'Amoron\'i Mania',
+            district: 'Ambositra',
+            commune: 'Ambositra',
+            status: 'Actif',
+            lastUpdate: new Date().toISOString().split('T')[0],
+            ipAddress: '192.168.1.7',
+            manager: 'Importé Manager 2',
+            activeSite: true,
+            sitesToVisit: 3,
+            visitCount: 1,
+            monitoringPriority: 'High',
+            requiredFrequency: 'Monthly'
+          }
+        ];
+        
+        // Ajouter les nouveaux sites à notre liste simulée
+        mockSites.push(...newSites);
+        
         toast.success('Données importées avec succès');
         resolve(mockSites);
       }, 1000);
