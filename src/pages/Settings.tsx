@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { parametersService } from '@/services/parametersService';
 import OverarchingParameters from '@/components/settings/OverarchingParameters';
 import OdkDecryptionManager from '@/components/settings/OdkDecryptionManager';
-import UserManagement from '@/components/settings/UserManagement';
 import { Settings as SettingsIcon, Lock, Database, Users, Shield, Workflow } from 'lucide-react';
 
 const Settings = () => {
