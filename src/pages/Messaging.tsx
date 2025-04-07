@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -10,14 +12,35 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { MailOpen, MessageSquare, Plus, Search, Send, Trash, CheckCircle, UserPlus, Calendar as CalendarIcon } from 'lucide-react';
+import { 
+  MailOpen, 
+  MessageSquare, 
+  Plus, 
+  Search, 
+  Send, 
+  Trash, 
+  CheckCircle, 
+  UserPlus, 
+  Calendar as CalendarIcon, 
+  CheckSquare, 
+  PlusCircle 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Message, Task, User } from '@/types';
@@ -138,6 +161,7 @@ const Messaging = () => {
     dueDate: '',
     priority: 'medium'
   });
+  const { toast: toastHook } = useToast();
 
   const { data: messages = mockMessages } = useQuery({
     queryKey: ['messages'],

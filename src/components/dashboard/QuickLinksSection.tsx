@@ -2,7 +2,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Database, BarChart, FileText, Users, MapPin, Upload, Download, HelpCircle, GitBranch, Globe, Server } from 'lucide-react';
+import { 
+  Database, 
+  BarChart, 
+  FileText, 
+  Users, 
+  MapPin, 
+  Upload, 
+  Download, 
+  HelpCircle, 
+  GitBranch, 
+  Globe, 
+  Server,
+  Settings,
+  MessageSquare,
+  Bell
+} from 'lucide-react';
 
 const QuickLink = ({ 
   icon, 
@@ -16,7 +31,7 @@ const QuickLink = ({
   isNew?: boolean;
 }) => (
   <Link to={path}>
-    <Card className="hover:bg-blue-50 transition-colors relative overflow-hidden">
+    <Card className="hover:bg-blue-50 transition-colors relative overflow-hidden h-full">
       {isNew && (
         <div className="absolute -right-8 top-2 bg-yellow-500 text-xs text-white font-bold py-1 px-8 rotate-45">
           NEW
@@ -35,7 +50,7 @@ const QuickLinksSection = () => {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <QuickLink 
         icon={<Database size={40} />} 
-        title="Voir le tableau de bord des sites" 
+        title="Tableau de bord des sites" 
         path="/sites" 
       />
       <QuickLink 
@@ -57,14 +72,24 @@ const QuickLinksSection = () => {
         isNew
       />
       <QuickLink 
-        icon={<MapPin size={40} />} 
-        title="Voir propriétés des sites" 
-        path="/sites" 
+        icon={<BarChart size={40} />} 
+        title="Données analytiques" 
+        path="/actual-data" 
       />
       <QuickLink 
         icon={<FileText size={40} />} 
-        title="Créer ou voir données mensuelles" 
+        title="Données mensuelles" 
         path="/actual-data" 
+      />
+      <QuickLink 
+        icon={<MessageSquare size={40} />} 
+        title="Messagerie & Tâches" 
+        path="/messaging" 
+      />
+      <QuickLink 
+        icon={<Bell size={40} />} 
+        title="Notifications" 
+        path="/notifications" 
       />
       <QuickLink 
         icon={<Upload size={40} />} 
@@ -75,6 +100,16 @@ const QuickLinksSection = () => {
         icon={<Download size={40} />} 
         title="Exporter données" 
         path="/export" 
+      />
+      <QuickLink 
+        icon={<Settings size={40} />} 
+        title="Paramètres généraux" 
+        path="/settings" 
+      />
+      <QuickLink 
+        icon={<HelpCircle size={40} />} 
+        title="Aide et documentation" 
+        path="#" 
       />
     </div>
   );

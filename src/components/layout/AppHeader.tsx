@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,12 @@ import {
   Search,
   GitBranch,
   Globe,
-  Database
+  Database,
+  BarChart,
+  FileText,
+  Home,
+  Info,
+  HelpCircle
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,7 +28,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal
 } from '@/components/ui/dropdown-menu';
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
+import { cn } from '@/lib/utils';
 
 const AppHeader = () => {
   const { toast } = useToast();
@@ -43,20 +56,49 @@ const AppHeader = () => {
   const unreadMessages = 2;
 
   return (
-    <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
+    <header className="bg-app-blue text-white border-b sticky top-0 z-10 shadow-sm">
       <div className="container mx-auto flex justify-between items-center h-16 px-4">
         <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold text-app-blue flex items-center space-x-2">
-            <span>SiteSync</span>
+          <Link to="/" className="text-2xl font-bold text-white flex items-center space-x-2">
+            <span>Monitoring Plan</span>
           </Link>
+
+          <NavigationMenu className="ml-6">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
+                  <Link to="/">
+                    <Home className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
+                  <Link to="/sites">
+                    <Globe className="h-4 w-4 mr-2" />
+                    Sites
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
+                  <Link to="/actual-data">
+                    <BarChart className="h-4 w-4 mr-2" />
+                    Actual Data
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
 
         <form onSubmit={handleSearch} className="w-1/3 hidden md:block">
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-white" />
             <Input
               placeholder="Search..."
-              className="pl-8 w-full"
+              className="pl-8 w-full bg-blue-700 border-blue-600 text-white placeholder:text-blue-200"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -66,7 +108,7 @@ const AppHeader = () => {
         <div className="flex items-center space-x-1 md:space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
                 <Database className="h-4 w-4 mr-2" /> Data
               </Button>
             </DropdownMenuTrigger>
@@ -75,20 +117,20 @@ const AppHeader = () => {
                 <Database className="h-4 w-4 mr-2" /> Data Sources
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/actual-data')}>
-                Actual Data
+                <FileText className="h-4 w-4 mr-2" /> Actual Data
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/sites')}>
-                Sites
+                <Globe className="h-4 w-4 mr-2" /> Sites
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/projects')}>
-                Projects
+                <BarChart className="h-4 w-4 mr-2" /> Projects
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="hidden md:flex">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
                 <GitBranch className="h-4 w-4 mr-2" /> Tools
               </Button>
             </DropdownMenuTrigger>
@@ -100,10 +142,10 @@ const AppHeader = () => {
                 <Globe className="h-4 w-4 mr-2" /> Integrations
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/import')}>
-                Import
+                <Database className="h-4 w-4 mr-2" /> Import
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/export')}>
-                Export
+                <Database className="h-4 w-4 mr-2" /> Export
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/settings')}>
                 <Settings className="h-4 w-4 mr-2" /> Settings
@@ -114,7 +156,7 @@ const AppHeader = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="relative"
+            className="relative text-white hover:bg-blue-700"
             onClick={() => navigate('/messaging')}
           >
             <MessageSquare className="h-5 w-5" />
@@ -128,7 +170,7 @@ const AppHeader = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="relative"
+            className="relative text-white hover:bg-blue-700"
             onClick={() => navigate('/notifications')}
           >
             <Bell className="h-5 w-5" />
@@ -141,7 +183,7 @@ const AppHeader = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button variant="ghost" size="icon" className="rounded-full text-white hover:bg-blue-700">
                 <User className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -155,6 +197,15 @@ const AppHeader = () => {
               <DropdownMenuItem onClick={() => navigate('/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Info className="mr-2 h-4 w-4" />
+                <span>About</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>Help</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => toast({ title: 'Logged out' })}>
