@@ -318,7 +318,7 @@ const OverarchingParameters = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="cspActivityNumber" className="text-right">
                 CSP Activity Number
               </Label>
@@ -330,7 +330,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="fieldOffice" className="text-right">
                 Field Office
               </Label>
@@ -342,7 +342,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="activityCategory" className="text-right">
                 Activity Category
               </Label>
@@ -363,7 +363,7 @@ const OverarchingParameters = () => {
               </Select>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="operationDuration" className="text-right">
                 Operation Duration
               </Label>
@@ -380,7 +380,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="numberOfSites" className="text-right">
                 Number of Sites
               </Label>
@@ -394,7 +394,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="riskLevel" className="text-right">
                 Risk Level
               </Label>
@@ -414,7 +414,7 @@ const OverarchingParameters = () => {
             </div>
             
             {/* Cette section affiche les valeurs calculées */}
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Min. Required Interval
               </Label>
@@ -426,7 +426,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Target Sites/Month
               </Label>
@@ -438,7 +438,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="feasibleNumberOfSites" className="text-right">
                 Feasible Sites/Month
               </Label>
@@ -452,7 +452,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Adjusted Interval
               </Label>
@@ -464,7 +464,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Feasibility Ratio
               </Label>
