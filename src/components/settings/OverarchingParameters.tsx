@@ -33,6 +33,21 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
+interface OverreachingParameter {
+  id: number;
+  cspActivityNumber: string;
+  fieldOffice: string;
+  activityCategory: string;
+  operationDuration: number;
+  numberOfSites: number;
+  riskLevel: 1 | 2 | 3;
+  minimumRequiredInterval: number;
+  targetedSitesPerMonth: number;
+  feasibleSitesPerMonth: number;
+  adjustedInterval: number;
+  feasibleRatio: number;
+}
+
 const OverarchingParameters = () => {
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);

@@ -8,14 +8,14 @@ const mockOverarchingParameters: OverarchingParameter[] = [
     cspActivityNumber: 'CSP-MDG-2023-001',
     fieldOffice: 'RBJ Madagascar, Toliara Sub Office',
     activityCategory: 'Malnutrition prevention activities',
-    operationDuration: 12,
-    numberOfSites: 125,
+    operationDuration: 6,
+    numberOfSites: 101,
     riskLevel: 2,
-    minimumRequiredInterval: 6, // operationDuration / riskLevel
-    targetedNumberOfSites: 21, // numberOfSites / minimumRequiredInterval
-    feasibleNumberOfSites: 18,
-    adjustedRequiredInterval: 8, // calculé dynamiquement
-    feasibilityRatio: 0.86 // feasibleNumberOfSites / targetedNumberOfSites
+    minimumRequiredInterval: 3, // operationDuration / riskLevel
+    targetedNumberOfSites: 34, // numberOfSites / minimumRequiredInterval
+    feasibleNumberOfSites: 12,
+    adjustedRequiredInterval: 8.42, // calculé dynamiquement
+    feasibilityRatio: 0.36 // feasibleNumberOfSites / targetedNumberOfSites
   },
   {
     id: '2',
