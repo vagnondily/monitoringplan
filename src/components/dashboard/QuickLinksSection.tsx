@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Database, BarChart, FileText, Users, MapPin, Upload, Download, HelpCircle } from 'lucide-react';
+import { Database, BarChart, FileText, Users, MapPin, Upload, Download, HelpCircle, FlowArrow, Globe, Server } from 'lucide-react';
 
 const QuickLink = ({ 
   icon, 
@@ -39,15 +39,22 @@ const QuickLinksSection = () => {
         path="/sites" 
       />
       <QuickLink 
-        icon={<BarChart size={40} />} 
-        title="Créer ou voir rapports" 
-        path="/reports" 
+        icon={<FlowArrow size={40} />} 
+        title="Créer ou gérer des workflows" 
+        path="/workflow" 
         isNew 
       />
       <QuickLink 
-        icon={<Users size={40} />} 
-        title="Créer ou voir partenariats" 
-        path="/partnerships" 
+        icon={<Globe size={40} />} 
+        title="Gérer les intégrations" 
+        path="/integrations" 
+        isNew
+      />
+      <QuickLink 
+        icon={<Server size={40} />} 
+        title="Sources de données" 
+        path="/data-sources" 
+        isNew
       />
       <QuickLink 
         icon={<MapPin size={40} />} 
@@ -68,11 +75,6 @@ const QuickLinksSection = () => {
         icon={<Download size={40} />} 
         title="Exporter données" 
         path="/export" 
-      />
-      <QuickLink 
-        icon={<HelpCircle size={40} />} 
-        title="Aide & assistance" 
-        path="/help" 
       />
     </div>
   );

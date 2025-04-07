@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -24,7 +23,7 @@ import {
   ShieldCheck, 
   Settings as SettingsIcon, 
   RefreshCw,
-  Sync,
+  SyncIcon,
   DownloadCloud,
   Globe
 } from 'lucide-react';
@@ -406,7 +405,7 @@ const Settings = () => {
                   disabled={!odkConfig.serverUrl || !odkConfig.username || isSyncing}
                   className="bg-app-blue hover:bg-app-lightBlue flex items-center gap-2"
                 >
-                  {isSyncing ? <RefreshCw className="animate-spin" size={16} /> : <Sync size={16} />}
+                  {isSyncing ? <RefreshCw className="animate-spin" size={16} /> : <SyncIcon size={16} />}
                   {isSyncing ? 'Synchronisation en cours...' : 'Synchroniser maintenant'}
                 </Button>
               </div>

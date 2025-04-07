@@ -15,6 +15,9 @@ import NotFound from "./pages/NotFound";
 import ActualData from "./pages/ActualData";
 import Messaging from "./pages/Messaging";
 import Notifications from "./pages/Notifications";
+import Workflow from "./pages/Workflow";
+import Integrations from "./pages/Integrations";
+import DataSources from "./pages/DataSources";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +97,30 @@ const App = () => (
             element={
               <AppLayout>
                 <Notifications />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/workflow" 
+            element={
+              <AppLayout>
+                <Workflow />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/integrations" 
+            element={
+              <AppLayout>
+                <Integrations />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/data-sources" 
+            element={
+              <AppLayout>
+                <DataSources />
               </AppLayout>
             } 
           />

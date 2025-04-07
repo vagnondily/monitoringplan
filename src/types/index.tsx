@@ -149,3 +149,63 @@ export interface MonthPlanningData {
 export interface SiteMonthlyPlanning {
   [month: string]: MonthPlanningData;
 }
+
+// Workflow related interfaces
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  steps: WorkflowStep[];
+  createdAt: string;
+  updatedAt: string;
+  status: 'active' | 'draft' | 'archived';
+  triggers: WorkflowTrigger[];
+}
+
+export interface WorkflowStep {
+  id: string;
+  name: string;
+  type: 'action' | 'condition' | 'delay';
+  config: Record<string, any>;
+  nextSteps: string[];
+  position: { x: number; y: number };
+}
+
+export interface WorkflowTrigger {
+  id: string;
+  type: 'event' | 'schedule' | 'manual';
+  config: Record<string, any>;
+}
+
+export interface Integration {
+  id: string;
+  name: string;
+  type: 'odk' | 'tableau' | 'api' | 'custom';
+  config: Record<string, any>;
+  status: 'connected' | 'disconnected' | 'error';
+  lastSync?: string;
+}
+
+export interface DataSource {
+  id: string;
+  name: string;
+  type: 'database' | 'api' | 'file' | 'integration';
+  config: Record<string, any>;
+  schema?: DataSourceSchema;
+  status: 'active' | 'inactive';
+}
+
+export interface DataSourceSchema {
+  tables: DataSourceTable[];
+}
+
+export interface DataSourceTable {
+  name: string;
+  columns: DataSourceColumn[];
+}
+
+export interface DataSourceColumn {
+  name: string;
+  type: string;
+  nullable: boolean;
+}

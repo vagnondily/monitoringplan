@@ -1,150 +1,169 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, User, Menu } from 'lucide-react';
-import { 
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useQuery } from '@tanstack/react-query';
-import { notificationService } from '@/services/notificationService';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Bell, 
+  MessageSquare, 
+  User, 
+  Settings, 
+  LogOut, 
+  Search,
+  FlowArrow,
+  Globe,
+  Database
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const AppHeader = () => {
-  const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: notificationService.getNotifications
-  });
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      toast({
+        title: "Search",
+        description: `Searching for "${searchQuery}"`,
+      });
+    }
+  };
+
+  const unreadNotifications = 3;
+  const unreadMessages = 2;
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-app-blue text-white">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
+      <div className="container mx-auto flex justify-between items-center h-16 px-4">
         <div className="flex items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold">COMET</span>
+          <Link to="/" className="text-2xl font-bold text-app-blue flex items-center space-x-2">
+            <span>SiteSync</span>
           </Link>
         </div>
 
-        <NavigationMenu className="mx-auto">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link to="/">
-                <NavigationMenuLink className="text-white hover:text-blue-200">
-                  Dashboard
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+        <form onSubmit={handleSearch} className="w-1/3 hidden md:block">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              className="pl-8 w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </form>
 
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-white bg-transparent hover:bg-blue-700 hover:text-white">Planning</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[300px] gap-3 p-4 md:w-[400px] md:grid-cols-2">
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/sites">Site Planning</Link>
-                  </li>
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/projects">Project Planning</Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+        <div className="flex items-center space-x-1 md:space-x-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="hidden md:flex">
+                <Database className="h-4 w-4 mr-2" /> Data
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate('/data-sources')}>
+                <Database className="h-4 w-4 mr-2" /> Data Sources
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/actual-data')}>
+                Actual Data
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/sites')}>
+                Sites
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/projects')}>
+                Projects
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-white bg-transparent hover:bg-blue-700 hover:text-white">Partnership</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[300px] gap-3 p-4">
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/partnerships">Manage Partnerships</Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="hidden md:flex">
+                <FlowArrow className="h-4 w-4 mr-2" /> Tools
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate('/workflow')}>
+                <FlowArrow className="h-4 w-4 mr-2" /> Workflow Designer
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/integrations')}>
+                <Globe className="h-4 w-4 mr-2" /> Integrations
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/import')}>
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/export')}>
+                Export
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="h-4 w-4 mr-2" /> Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            <NavigationMenuItem>
-              <Link to="/frn">
-                <NavigationMenuLink className="text-white hover:text-blue-200">
-                  FRN
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => navigate('/messaging')}
+          >
+            <MessageSquare className="h-5 w-5" />
+            {unreadMessages > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                {unreadMessages}
+              </span>
+            )}
+          </Button>
 
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-white bg-transparent hover:bg-blue-700 hover:text-white">Actual Data</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[300px] gap-3 p-4">
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/actual-data">ODK/Ona Data</Link>
-                  </li>
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/import">Import Data</Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={() => navigate('/notifications')}
+          >
+            <Bell className="h-5 w-5" />
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                {unreadNotifications}
+              </span>
+            )}
+          </Button>
 
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-white bg-transparent hover:bg-blue-700 hover:text-white">Ben. Counting</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[300px] gap-3 p-4">
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/beneficiary-counting">Beneficiary Statistics</Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <Link to="/reports">
-                <NavigationMenuLink className="text-white hover:text-blue-200">
-                  Reports
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="text-white bg-transparent hover:bg-blue-700 hover:text-white">Tools</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[300px] gap-3 p-4">
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/messaging">Task Messaging</Link>
-                  </li>
-                  <li className="p-2 hover:bg-blue-50 hover:text-blue-900 rounded">
-                    <Link to="/export">Data Export</Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-
-        <div className="flex items-center space-x-4">
-          <Link to="/notifications">
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-blue-700">
-              <Bell size={20} />
-              {unreadCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs min-w-[18px] h-[18px] flex items-center justify-center rounded-full p-0">
-                  {unreadCount}
-                </Badge>
-              )}
-            </Button>
-          </Link>
-          
-          <Link to="/profile">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-blue-700 flex items-center">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt="User" />
-                <AvatarFallback className="bg-blue-800">UN</AvatarFallback>
-              </Avatar>
-            </Button>
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>John Doe</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => toast({ title: 'Logged out' })}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
