@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend
 } from 'recharts';
-import { Building, Clock, AlertTriangle, CheckCircle, ArrowUpRight, ArrowDownRight, RefreshCw, FileBar, Layers, Map } from 'lucide-react';
+import { Building, Clock, AlertTriangle, CheckCircle, ArrowUpRight, ArrowDownRight, RefreshCw, FileText, Layers, Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import StatsCard from '@/components/dashboard/StatsCard';
 import QuickLinksSection from '@/components/dashboard/QuickLinksSection';
@@ -40,7 +39,6 @@ const Dashboard = () => {
     queryFn: notificationService.getNotifications
   });
 
-  // Preparing data for the charts
   const sitesStatusData = [
     { name: 'Actifs', value: sites.filter(s => s.status === 'Actif').length },
     { name: 'Inactifs', value: sites.filter(s => s.status === 'Inactif').length },
@@ -53,14 +51,12 @@ const Dashboard = () => {
     { name: 'En attente', value: projects.filter(p => p.status === 'En attente').length }
   ];
 
-  // Calculate the monitoring coverage
   const sitesToVisit = sites.filter(s => s.priority === 'high' || s.priority === 'medium').length;
   const sitesVisited = sites.filter(s => s.lastVisitDate && new Date(s.lastVisitDate) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)).length;
   const monitoringCoverage = sitesToVisit ? Math.round((sitesVisited / sitesToVisit) * 100) : 0;
 
   const unreadNotifications = notifications.filter(n => !n.read).length;
 
-  // Monthly site activity data
   const monthlyActivityData = [
     { name: 'Jan', visits: 65, plans: 78, average: 71.5 },
     { name: 'Feb', visits: 59, plans: 85, average: 72 },
@@ -105,7 +101,7 @@ const Dashboard = () => {
           </Button>
           <Link to="/reports">
             <Button className="bg-app-blue hover:bg-app-lightBlue">
-              <FileBar className="mr-2 h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
               Voir les rapports
             </Button>
           </Link>
