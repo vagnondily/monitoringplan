@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Database, BarChart, FileText, Users, MapPin, Upload, Download, HelpCircle, FlowArrow, Globe, Server } from 'lucide-react';
+import { Database, BarChart, FileText, Users, MapPin, Upload, Download, HelpCircle, GitBranch, Globe, Server } from 'lucide-react';
 
 const QuickLink = ({ 
   icon, 
@@ -39,7 +39,7 @@ const QuickLinksSection = () => {
         path="/sites" 
       />
       <QuickLink 
-        icon={<FlowArrow size={40} />} 
+        icon={<GitBranch size={40} />} 
         title="Créer ou gérer des workflows" 
         path="/workflow" 
         isNew 

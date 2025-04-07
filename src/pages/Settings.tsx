@@ -22,10 +22,13 @@ import {
   Server, 
   ShieldCheck, 
   Settings as SettingsIcon, 
-  RefreshCw,
-  SyncIcon,
+  RefreshCw as SyncIcon,
   DownloadCloud,
-  Globe
+  Globe,
+  User,
+  Bell,
+  Shield,
+  Smartphone
 } from 'lucide-react';
 import { settingsService } from '@/services/dataService';
 import { odkService } from '@/services/odkService';

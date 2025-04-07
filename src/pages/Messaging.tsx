@@ -1,43 +1,27 @@
-
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
 import { 
-  MessageSquare, 
-  Send, 
-  User, 
-  Search, 
-  CheckSquare, 
-  Clock, 
-  AlertTriangle, 
-  Trash, 
-  Edit, 
-  PlusCircle,
-  Users
-} from 'lucide-react';
-import { Message, Task, User as UserType } from '@/types';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { MailOpen, MessageSquare, Plus, Search, Send, Trash, CheckCircle, UserPlus, Calendar as CalendarIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Message, Task, User } from '@/types';
 
-// Mock data
 const mockMessages = [
   {
     id: '1',

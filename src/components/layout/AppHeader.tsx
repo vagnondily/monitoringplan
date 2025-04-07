@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,7 @@ import {
   Settings, 
   LogOut, 
   Search,
-  FlowArrow,
+  GitBranch,
   Globe,
   Database
 } from 'lucide-react';
@@ -90,12 +89,12 @@ const AppHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="hidden md:flex">
-                <FlowArrow className="h-4 w-4 mr-2" /> Tools
+                <GitBranch className="h-4 w-4 mr-2" /> Tools
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/workflow')}>
-                <FlowArrow className="h-4 w-4 mr-2" /> Workflow Designer
+                <GitBranch className="h-4 w-4 mr-2" /> Workflow Designer
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/integrations')}>
                 <Globe className="h-4 w-4 mr-2" /> Integrations

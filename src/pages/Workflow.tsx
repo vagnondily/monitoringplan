@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -20,7 +19,7 @@ import {
   Trash, 
   Copy,
   LayoutDashboard,
-  FlowArrow
+  GitBranch
 } from 'lucide-react';
 import { toast } from 'sonner';
 import WorkflowDesigner from '@/components/workflow/WorkflowDesigner';
@@ -128,7 +127,7 @@ const WorkflowPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <FlowArrow className="h-8 w-8 text-app-blue" /> 
+          <GitBranch className="h-8 w-8 text-app-blue" /> 
           Workflow Designer
         </h1>
         <Button 
