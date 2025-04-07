@@ -93,19 +93,19 @@ const AppHeader = () => {
           </NavigationMenu>
         </div>
 
-        <form onSubmit={handleSearch} className="w-1/3 hidden md:block">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-white" />
-            <Input
-              placeholder="Search..."
-              className="pl-8 w-full bg-blue-700 border-blue-600 text-white placeholder:text-blue-200"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </form>
-
         <div className="flex items-center space-x-1 md:space-x-2">
+          <form onSubmit={handleSearch} className="w-60 hidden md:block">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-white" />
+              <Input
+                placeholder="Search..."
+                className="pl-8 w-full bg-blue-700 border-blue-600 text-white placeholder:text-blue-200"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </form>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
@@ -199,7 +199,7 @@ const AppHeader = () => {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/about')}>
                 <Info className="mr-2 h-4 w-4" />
                 <span>About</span>
               </DropdownMenuItem>
