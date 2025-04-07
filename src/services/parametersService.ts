@@ -96,7 +96,7 @@ export const parametersService = {
     }
 
     // Calcul du minimum required interval: Operation duration / Risk level
-    const minimumRequiredInterval = Math.max(1, Math.floor(operationDuration / (riskLevel || 1)));
+    const minimumRequiredInterval = Math.max(1, Math.ceil(operationDuration / (riskLevel || 1)));
     
     // Targeted number of sites to visit (per month) = number of sites / minimum required interval
     const targetedNumberOfSites = Math.ceil(numberOfSites / minimumRequiredInterval);
@@ -111,11 +111,11 @@ export const parametersService = {
     
     // Minimum required frequency of visits during the duration = operation duration / minimumRequiredInterval
     const minimumRequiredFrequency = minimumRequiredInterval > 0 
-      ? Math.floor(operationDuration / minimumRequiredInterval)
+      ? Math.ceil(operationDuration / minimumRequiredInterval)
       : 0;
     
     // CO adjusted required frequency = Minimum required frequency * feasibility ratio
-    const adjustedRequiredFrequency = Math.floor(minimumRequiredFrequency * feasibilityRatio);
+    const adjustedRequiredFrequency = Math.ceil(minimumRequiredFrequency * feasibilityRatio);
     
     // CO adjusted required interval (in months)
     let adjustedRequiredInterval = 1;
