@@ -157,7 +157,6 @@ const getDataSourceIcon = (type: string) => {
   }
 };
 
-// Ajout de nouvelles options pour la configuration de la combinaison de sources
 const DataSourcesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTable, setSelectedTable] = useState<DataSourceTable | null>(null);
@@ -225,7 +224,6 @@ const DataSourcesPage = () => {
   };
 
   const handleSaveNewDataSource = () => {
-    // Implement API call in real app
     toast.success(`Data source "${newDataSource.name}" added successfully`);
     setIsAddDialogOpen(false);
     setNewDataSource({
@@ -243,7 +241,6 @@ const DataSourcesPage = () => {
   };
 
   const handleConfirmDelete = () => {
-    // Implement API call in real app
     if (selectedDataSource) {
       toast.success(`Data source "${selectedDataSource.name}" deleted successfully`);
       setIsDeleteDialogOpen(false);
@@ -252,21 +249,18 @@ const DataSourcesPage = () => {
   };
 
   const handleSaveConfiguration = () => {
-    // Implement API call in real app
     toast.success('Configuration saved successfully');
     setIsConfigureDialogOpen(false);
   };
 
   const handleTestConnection = () => {
     setIsTestingConnection(true);
-    // Simulate API call
     setTimeout(() => {
       setIsTestingConnection(false);
       toast.success('Connection test successful');
     }, 1500);
   };
 
-  // Mock data preview
   const generateMockTableData = (table: DataSourceTable) => {
     const rows = [];
     for (let i = 0; i < 5; i++) {
@@ -417,7 +411,6 @@ const DataSourcesPage = () => {
     }
   };
 
-  // Nouvelle fonction pour gérer la combinaison de sources de données
   const handleCombineDataSources = () => {
     if (selectedDataSources.length < 2) {
       toast.error('Veuillez sélectionner au moins deux sources de données');
@@ -429,7 +422,6 @@ const DataSourcesPage = () => {
       return;
     }
 
-    // Ici on simulerait l'API pour créer une source combinée
     toast.success(`Sources de données combinées sous le nom "${combinedSourceName}"`);
     setIsDataSourceCombineModalOpen(false);
     setCombinedSourceName('');
@@ -444,7 +436,6 @@ const DataSourcesPage = () => {
     }
   };
 
-  // Mettons à jour l'interface pour la configuration ODK Briefcase
   const getNewDataSourceConfigFields = () => {
     switch(newDataSource.type) {
       case 'database':
@@ -939,3 +930,298 @@ const DataSourcesPage = () => {
                       <div>
                         <span className="font-medium">Host:</span> {dataSource.config.host || 'localhost'}
                       </div>
+                      <div>
+                        <span className="font-medium">Port:</span> {dataSource.config.port || '5432'}
+                      </div>
+                      <div>
+                        <span className="font-medium">Database:</span> {dataSource.config.database || 'db'}
+                      </div>
+                      <div>
+                        <span className="font-medium">User:</span> {dataSource.config.username || 'admin'}
+                      </div>
+                    </div>
+                  )}
+
+                  {dataSource.type === 'api' && (
+                    <div className="grid grid-cols-1 gap-2 my-3 text-sm">
+                      <div>
+                        <span className="font-medium">URL:</span> {dataSource.config.url || 'https://api.example.com'}
+                      </div>
+                      <div>
+                        <span className="font-medium">Auth Type:</span> {dataSource.config.authType || 'bearer'}
+                      </div>
+                    </div>
+                  )}
+
+                  {dataSource.type === 'file' && (
+                    <div className="grid grid-cols-1 gap-2 my-3 text-sm">
+                      <div>
+                        <span className="font-medium">Directory:</span> {dataSource.config.directory || '/data'}
+                      </div>
+                      <div>
+                        <span className="font-medium">Pattern:</span> {dataSource.config.filePattern || '*.*'}
+                      </div>
+                    </div>
+                  )}
+
+                  {dataSource.type === 'integration' && (
+                    <div className="grid grid-cols-1 gap-2 my-3 text-sm">
+                      <div>
+                        <span className="font-medium">Integration:</span> ODK Briefcase
+                      </div>
+                      <div>
+                        <span className="font-medium">Form ID:</span> {dataSource.config.formId || 'default-form'}
+                      </div>
+                    </div>
+                  )}
+
+                  {dataSource.schema?.tables && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium mb-2">Tables disponibles:</h4>
+                      <div className="space-y-1">
+                        {dataSource.schema.tables.map(table => (
+                          <div 
+                            key={table.name}
+                            className="text-xs bg-gray-100 py-1 px-2 rounded flex justify-between items-center cursor-pointer hover:bg-gray-200"
+                            onClick={() => handleViewTable(dataSource, table)}
+                          >
+                            <span className="font-medium">{table.name}</span>
+                            <span className="text-gray-500">{table.columns.length} colonnes</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
+
+      <Dialog open={isDataSourceCombineModalOpen} onOpenChange={setIsDataSourceCombineModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Combiner des sources de données</DialogTitle>
+            <DialogDescription>
+              Sélectionnez les sources à combiner et donnez un nom à la nouvelle source combinée
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="combined-name">Nom de la source combinée</Label>
+              <Input
+                id="combined-name"
+                placeholder="Ex: Sites combinés"
+                value={combinedSourceName}
+                onChange={(e) => setCombinedSourceName(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Sources à combiner</Label>
+              <div className="border rounded-md p-3 space-y-2 max-h-60 overflow-y-auto">
+                {dataSources.map(source => (
+                  <div key={source.id} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`source-${source.id}`}
+                      checked={selectedDataSources.includes(source.id)}
+                      onCheckedChange={() => toggleDataSourceSelection(source.id)}
+                    />
+                    <Label htmlFor={`source-${source.id}`} className="flex items-center gap-2 text-sm cursor-pointer">
+                      {getDataSourceIcon(source.type)}
+                      {source.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {selectedDataSources.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {selectedDataSources.length} source(s) sélectionnée(s)
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDataSourceCombineModalOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleCombineDataSources} className="bg-app-blue hover:bg-app-lightBlue">
+              Combiner
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajouter une source de données</DialogTitle>
+            <DialogDescription>
+              Configurez les paramètres de la nouvelle source de données
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="ds-name">Nom</Label>
+              <Input
+                id="ds-name"
+                placeholder="Ex: Base de données des sites"
+                value={newDataSource.name}
+                onChange={(e) => setNewDataSource({...newDataSource, name: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="ds-type">Type</Label>
+              <Select 
+                value={newDataSource.type}
+                onValueChange={(value) => setNewDataSource({...newDataSource, type: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="database">Base de données</SelectItem>
+                  <SelectItem value="api">API</SelectItem>
+                  <SelectItem value="file">Fichier</SelectItem>
+                  <SelectItem value="integration">Intégration</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="ds-status">Statut</Label>
+              <Select 
+                value={newDataSource.status}
+                onValueChange={(value) => setNewDataSource({...newDataSource, status: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="border-t pt-4 space-y-4">
+              <h4 className="font-medium">Configuration de la connexion</h4>
+              {getNewDataSourceConfigFields()}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleSaveNewDataSource} className="bg-app-blue hover:bg-app-lightBlue">
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isConfigureDialogOpen} onOpenChange={setIsConfigureDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configurer la source</DialogTitle>
+            <DialogDescription>
+              {selectedDataSource?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="config-name">Nom</Label>
+              <Input
+                id="config-name"
+                defaultValue={selectedDataSource?.name || ''}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="config-status">Statut</Label>
+              <Select defaultValue={selectedDataSource?.status || 'active'}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="border-t pt-4 space-y-4">
+              <h4 className="font-medium">Configuration de la connexion</h4>
+              {getConnectionConfigFields()}
+            </div>
+            
+            <div className="pt-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="w-full"
+                onClick={handleTestConnection}
+                disabled={isTestingConnection}
+              >
+                {isTestingConnection ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Test en cours...
+                  </>
+                ) : (
+                  <>
+                    <Terminal className="mr-2 h-4 w-4" />
+                    Tester la connexion
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsConfigureDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleSaveConfiguration} className="bg-app-blue hover:bg-app-lightBlue">
+              <Save className="mr-2 h-4 w-4" />
+              Enregistrer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Supprimer la source de données</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer "{selectedDataSource?.name}" ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleConfirmDelete}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default DataSourcesPage;
