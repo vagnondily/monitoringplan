@@ -23,6 +23,14 @@ export interface OdkBriefcaseConfig {
   decryptionKey?: string;
   useCombinedSources?: boolean;
   additionalSources?: string[];
+  serverUrl?: string;
+  username?: string;
+  password?: string;
+  formId?: string;
+  lastSyncDate?: string;
+  syncInterval?: 'hourly' | 'daily' | 'weekly' | 'manual';
+  exportDirectory?: string;
+  exportFormat?: 'csv' | 'json';
 }
 
 export interface OdkDecryptionKey {
@@ -31,4 +39,26 @@ export interface OdkDecryptionKey {
   formId: string;
   key: string;
   createdAt: string;
+}
+
+export interface OdkBriefcaseConnectionTestResult {
+  success: boolean;
+  message: string;
+  details?: {
+    version: string;
+    formsFound: number;
+    encryptedForms: number;
+  };
+}
+
+export interface OdkSyncResult {
+  success: boolean;
+  message: string;
+  stats?: {
+    formsProcessed: number;
+    newSubmissions: number;
+    updatedSubmissions: number;
+    encryptedSubmissions: number;
+    failedSubmissions: number;
+  };
 }

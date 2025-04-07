@@ -13,7 +13,7 @@ const Settings = () => {
   
   const { data: parameters, isLoading: isLoadingParameters } = useQuery({
     queryKey: ["parameters"],
-    queryFn: parametersService.getParameters
+    queryFn: parametersService.getOverarchingParameters
   });
 
   return (

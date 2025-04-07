@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,25 +17,61 @@ import {
 } from '@/components/ui/dialog';
 import { Key, FileKey, Lock, PlusCircle, Trash2, Edit, CheckCircle, Shield } from 'lucide-react';
 import { OdkDecryptionKey, OdkForm } from '@/types/odk';
-
-// Mock data pour les formulaires cryptés
-const mockEncryptedForms: OdkForm[] = [
-  { id: 'form-1', name: 'Monitoring Visit Form', version: '1.2.1', isEncrypted: true, submissionCount: 45, lastSubmission: '2025-03-15T10:30:00Z' },
-  { id: 'form-2', name: 'Health Assessment', version: '2.0.0', isEncrypted: true, submissionCount: 23, lastSubmission: '2025-04-01T14:45:00Z' },
-  { id: 'form-3', name: 'Water Quality Test', version: '1.0.5', isEncrypted: true, submissionCount: 12 }
-];
-
-// Mock data pour les clés de déchiffrement
-const mockDecryptionKeys: OdkDecryptionKey[] = [
-  { id: 'key-1', name: 'Monitoring Visit Key', formId: 'form-1', key: 'MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgw...', createdAt: '2025-01-10T09:00:00Z' }
-];
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { odkService } from '@/services/odkService';
 
 const OdkDecryptionManager = () => {
-  const [decryptionKeys, setDecryptionKeys] = useState<OdkDecryptionKey[]>(mockDecryptionKeys);
-  const [encryptedForms] = useState<OdkForm[]>(mockEncryptedForms);
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
   const [newKey, setNewKey] = useState<Partial<OdkDecryptionKey>>({});
   const [selectedForm, setSelectedForm] = useState<OdkForm | null>(null);
+  const queryClient = useQueryClient();
+
+  // Charger les formulaires cryptés
+  const { 
+    data: encryptedForms = [], 
+    isLoading: isLoadingForms,
+    error: formsError
+  } = useQuery({
+    queryKey: ['encryptedForms'],
+    queryFn: odkService.getEncryptedForms
+  });
+
+  // Charger les clés de déchiffrement
+  const { 
+    data: decryptionKeys = [], 
+    isLoading: isLoadingKeys,
+    error: keysError
+  } = useQuery({
+    queryKey: ['decryptionKeys'],
+    queryFn: odkService.getDecryptionKeys
+  });
+
+  // Mutation pour ajouter une clé
+  const addKeyMutation = useMutation({
+    mutationFn: (key: Omit<OdkDecryptionKey, 'id' | 'createdAt'>) => 
+      odkService.saveDecryptionKey(key),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['decryptionKeys'] });
+      toast.success('Clé de déchiffrement ajoutée avec succès');
+      setIsAddKeyDialogOpen(false);
+      setNewKey({});
+    },
+    onError: (error: Error) => {
+      toast.error(`Erreur lors de l'ajout de la clé: ${error.message}`);
+    }
+  });
+
+  // Mutation pour supprimer une clé
+  const deleteKeyMutation = useMutation({
+    mutationFn: (keyId: string) => odkService.deleteDecryptionKey(keyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['decryptionKeys'] });
+      toast.success('Clé de déchiffrement supprimée');
+    },
+    onError: (error: Error) => {
+      toast.error(`Erreur lors de la suppression de la clé: ${error.message}`);
+    }
+  });
 
   const handleAddKey = () => {
     if (!newKey.name || !newKey.formId || !newKey.key) {
@@ -43,23 +79,15 @@ const OdkDecryptionManager = () => {
       return;
     }
 
-    const keyToAdd: OdkDecryptionKey = {
-      id: `key-${Date.now()}`,
+    addKeyMutation.mutate({
       name: newKey.name,
       formId: newKey.formId,
-      key: newKey.key,
-      createdAt: new Date().toISOString()
-    };
-
-    setDecryptionKeys([...decryptionKeys, keyToAdd]);
-    setNewKey({});
-    setIsAddKeyDialogOpen(false);
-    toast.success('Clé de déchiffrement ajoutée avec succès');
+      key: newKey.key
+    });
   };
 
   const handleDeleteKey = (keyId: string) => {
-    setDecryptionKeys(decryptionKeys.filter(key => key.id !== keyId));
-    toast.success('Clé de déchiffrement supprimée');
+    deleteKeyMutation.mutate(keyId);
   };
 
   const handleOpenAddKeyDialog = (form?: OdkForm) => {
@@ -72,6 +100,16 @@ const OdkDecryptionManager = () => {
     }
     setIsAddKeyDialogOpen(true);
   };
+
+  // Afficher les erreurs de chargement
+  useEffect(() => {
+    if (formsError) {
+      toast.error(`Erreur lors du chargement des formulaires: ${formsError instanceof Error ? formsError.message : 'Erreur inconnue'}`);
+    }
+    if (keysError) {
+      toast.error(`Erreur lors du chargement des clés: ${keysError instanceof Error ? keysError.message : 'Erreur inconnue'}`);
+    }
+  }, [formsError, keysError]);
 
   return (
     <div className="space-y-6">
@@ -107,46 +145,53 @@ const OdkDecryptionManager = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {encryptedForms.map(form => {
-                    const hasKey = decryptionKeys.some(key => key.formId === form.id);
-                    return (
-                      <TableRow key={form.id}>
-                        <TableCell className="font-medium">{form.name}</TableCell>
-                        <TableCell>{form.version}</TableCell>
-                        <TableCell>{form.submissionCount}</TableCell>
-                        <TableCell>
-                          {hasKey ? (
-                            <div className="flex items-center text-green-600">
-                              <CheckCircle className="mr-1 h-4 w-4" />
-                              <span>Déchiffrable</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center text-amber-600">
-                              <Lock className="mr-1 h-4 w-4" />
-                              <span>Clé requise</span>
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleOpenAddKeyDialog(form)}
-                            disabled={hasKey}
-                          >
-                            <Key className="h-4 w-4" />
-                            {hasKey ? 'Clé configurée' : 'Ajouter une clé'}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {encryptedForms.length === 0 && (
+                  {isLoadingForms ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-4">
+                        Chargement des formulaires...
+                      </TableCell>
+                    </TableRow>
+                  ) : encryptedForms.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
                         Aucun formulaire crypté trouvé
                       </TableCell>
                     </TableRow>
+                  ) : (
+                    encryptedForms.map(form => {
+                      const hasKey = decryptionKeys.some(key => key.formId === form.id);
+                      return (
+                        <TableRow key={form.id}>
+                          <TableCell className="font-medium">{form.name}</TableCell>
+                          <TableCell>{form.version}</TableCell>
+                          <TableCell>{form.submissionCount}</TableCell>
+                          <TableCell>
+                            {hasKey ? (
+                              <div className="flex items-center text-green-600">
+                                <CheckCircle className="mr-1 h-4 w-4" />
+                                <span>Déchiffrable</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center text-amber-600">
+                                <Lock className="mr-1 h-4 w-4" />
+                                <span>Clé requise</span>
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleOpenAddKeyDialog(form)}
+                              disabled={hasKey}
+                            >
+                              <Key className="h-4 w-4 mr-1" />
+                              {hasKey ? 'Clé configurée' : 'Ajouter une clé'}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
@@ -166,33 +211,41 @@ const OdkDecryptionManager = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {decryptionKeys.map(key => {
-                      const formName = encryptedForms.find(f => f.id === key.formId)?.name || key.formId;
-                      return (
-                        <TableRow key={key.id}>
-                          <TableCell className="font-medium">{key.name}</TableCell>
-                          <TableCell>{formName}</TableCell>
-                          <TableCell>{new Date(key.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDeleteKey(key.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                              Supprimer
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                    {decryptionKeys.length === 0 && (
+                    {isLoadingKeys ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-4">
+                          Chargement des clés...
+                        </TableCell>
+                      </TableRow>
+                    ) : decryptionKeys.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
                           Aucune clé de déchiffrement enregistrée
                         </TableCell>
                       </TableRow>
+                    ) : (
+                      decryptionKeys.map(key => {
+                        const formName = encryptedForms.find(f => f.id === key.formId)?.name || key.formId;
+                        return (
+                          <TableRow key={key.id}>
+                            <TableCell className="font-medium">{key.name}</TableCell>
+                            <TableCell>{formName}</TableCell>
+                            <TableCell>{new Date(key.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell className="text-right">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDeleteKey(key.id)}
+                                disabled={deleteKeyMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Supprimer
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
@@ -231,7 +284,7 @@ const OdkDecryptionManager = () => {
             
             {!selectedForm && (
               <div className="space-y-2">
-                <Label htmlFor="form-id">ID du formulaire</Label>
+                <Label htmlFor="form-id">Formulaire</Label>
                 <select 
                   id="form-id"
                   className="w-full p-2 border rounded-md"
@@ -239,9 +292,11 @@ const OdkDecryptionManager = () => {
                   onChange={(e) => setNewKey({...newKey, formId: e.target.value})}
                 >
                   <option value="">Sélectionnez un formulaire</option>
-                  {encryptedForms.map(form => (
-                    <option key={form.id} value={form.id}>{form.name}</option>
-                  ))}
+                  {encryptedForms
+                    .filter(form => !decryptionKeys.some(key => key.formId === form.id))
+                    .map(form => (
+                      <option key={form.id} value={form.id}>{form.name}</option>
+                    ))}
                 </select>
               </div>
             )}
@@ -262,12 +317,25 @@ const OdkDecryptionManager = () => {
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddKeyDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsAddKeyDialogOpen(false)} disabled={addKeyMutation.isPending}>
               Annuler
             </Button>
-            <Button onClick={handleAddKey} className="bg-app-blue hover:bg-app-lightBlue">
-              <FileKey className="mr-2 h-4 w-4" />
-              Enregistrer la clé
+            <Button 
+              onClick={handleAddKey} 
+              className="bg-app-blue hover:bg-app-lightBlue"
+              disabled={addKeyMutation.isPending}
+            >
+              {addKeyMutation.isPending ? (
+                <>
+                  <span className="animate-spin mr-2">⟳</span>
+                  Enregistrement...
+                </>
+              ) : (
+                <>
+                  <FileKey className="mr-2 h-4 w-4" />
+                  Enregistrer la clé
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
