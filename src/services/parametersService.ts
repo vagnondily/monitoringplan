@@ -46,6 +46,14 @@ const mockOverarchingParameters: OverarchingParameter[] = [
     feasibilityRatio: 0.77 // feasibleNumberOfSites / targetedNumberOfSites
   }
 ];
+  // Service pour gérer les Bureaux
+  export const FIELD_OFFICES = [
+    "Antananarivo",
+    "Toamasina",
+    "Mahajanga",
+    "Fianarantsoa",
+    "Toliara"
+  ];
 
 // Liste des catégories d'activités disponibles
 export const activityCategories = [
@@ -74,6 +82,7 @@ export const parametersService = {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(activityCategories);
+        resolve(FIELD_OFFICES)
       }, 300);
     });
   },

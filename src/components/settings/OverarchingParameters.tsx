@@ -48,6 +48,7 @@ interface OverreachingParameter {
   feasibleRatio: number;
 }
 
+
 const OverarchingParameters = () => {
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -323,7 +324,7 @@ const OverarchingParameters = () => {
 
       {/* Dialog pour ajouter ou modifier un paramètre */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{selectedParameterId ? 'Modifier le paramètre' : 'Ajouter un nouveau paramètre'}</DialogTitle>
             <DialogDescription>
