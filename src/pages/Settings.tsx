@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast} from 'sonner';
+import { Button} from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { parametersService } from '@/services/parametersService';
 import OverarchingParameters from '@/components/settings/OverarchingParameters';
