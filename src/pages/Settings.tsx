@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { parametersService } from '@/services/parametersService';
 import OverarchingParameters from '@/components/settings/OverarchingParameters';
@@ -78,12 +78,15 @@ const Settings = () => {
         <TabsContent value="users" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Gestion des utilisateurs</CardTitle>
-              <CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-app-blue" />
+                Utilisateurs et permissions
+              </CardTitle>
+              <CardDescription>  
                 Gérer les comptes utilisateurs et les autorisations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </CardDescription> 
+            <CardHeader>
+            </CardContent>
               <div className="space-y-6">
                 <div className="flex justify-end">
                   <Button onClick={() => {
@@ -225,7 +228,7 @@ const Settings = () => {
                   </div>
                 </div>
               </div>
-            </CardContent>
+            <CardContent>
           </Card>
         </TabsContent>
         
