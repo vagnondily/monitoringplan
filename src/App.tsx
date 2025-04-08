@@ -23,156 +23,167 @@ import UsersManagement from "./pages/UsersManagement";
 import MapVisualization from "./pages/MapVisualization";
 import MEReportTemplate from "./pages/MEReportTemplate";
 import ReportTemplate from "./pages/ReportTemplate";
+import { ThemeProvider } from "./components/ThemeProvider";
 
-const queryClient = new QueryClient();
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <AppLayout>
-                <Dashboard />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/sites" 
-            element={
-              <AppLayout>
-                <Sites />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/sites/:id" 
-            element={
-              <AppLayout>
-                <SiteDetails />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/projects" 
-            element={
-              <AppLayout>
-                <Projects />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/import" 
-            element={
-              <AppLayout>
-                <Import />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/export" 
-            element={
-              <AppLayout>
-                <Export />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/settings" 
-            element={
-              <AppLayout>
-                <Settings />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/actual-data" 
-            element={
-              <AppLayout>
-                <ActualData />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/messaging" 
-            element={
-              <AppLayout>
-                <Messaging />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/notifications" 
-            element={
-              <AppLayout>
-                <Notifications />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/workflow" 
-            element={
-              <AppLayout>
-                <Workflow />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/integrations" 
-            element={
-              <AppLayout>
-                <Integrations />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/data-sources" 
-            element={
-              <AppLayout>
-                <DataSources />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/users" 
-            element={
-              <AppLayout>
-                <UsersManagement />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/map-visualization" 
-            element={
-              <AppLayout>
-                <MapVisualization />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/me-report-template" 
-            element={
-              <AppLayout>
-                <MEReportTemplate />
-              </AppLayout>
-            } 
-          />
-          <Route 
-            path="/report-template" 
-            element={
-              <AppLayout>
-                <ReportTemplate />
-              </AppLayout>
-            } 
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider defaultTheme="light" storageKey="app-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <AppLayout>
+                  <Dashboard />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/sites" 
+              element={
+                <AppLayout>
+                  <Sites />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/sites/:id" 
+              element={
+                <AppLayout>
+                  <SiteDetails />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/projects" 
+              element={
+                <AppLayout>
+                  <Projects />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/import" 
+              element={
+                <AppLayout>
+                  <Import />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/export" 
+              element={
+                <AppLayout>
+                  <Export />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/actual-data" 
+              element={
+                <AppLayout>
+                  <ActualData />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/messaging" 
+              element={
+                <AppLayout>
+                  <Messaging />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/notifications" 
+              element={
+                <AppLayout>
+                  <Notifications />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/workflow" 
+              element={
+                <AppLayout>
+                  <Workflow />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/integrations" 
+              element={
+                <AppLayout>
+                  <Integrations />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/data-sources" 
+              element={
+                <AppLayout>
+                  <DataSources />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/users" 
+              element={
+                <AppLayout>
+                  <UsersManagement />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/map-visualization" 
+              element={
+                <AppLayout>
+                  <MapVisualization />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/me-report-template" 
+              element={
+                <AppLayout>
+                  <MEReportTemplate />
+                </AppLayout>
+              } 
+            />
+            <Route 
+              path="/report-template" 
+              element={
+                <AppLayout>
+                  <ReportTemplate />
+                </AppLayout>
+              } 
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
