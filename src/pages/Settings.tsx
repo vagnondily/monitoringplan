@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast} from 'sonner';
-import { Button} from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { parametersService } from '@/services/parametersService';
 import OverarchingParameters from '@/components/settings/OverarchingParameters';
@@ -89,10 +89,7 @@ const Settings = () => {
               <div className="space-y-6">
                 <div className="flex justify-end">
                   <Button onClick={() => {
-                    toast({
-                      title: "Ajouter un utilisateur",
-                      description: "Fonction d'ajout d'utilisateur à implémenter",
-                    });
+                    toast.success("Ajouter un utilisateur");
                   }}>Ajouter un utilisateur</Button>
                 </div>
                 
@@ -106,17 +103,10 @@ const Settings = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => {
-                          toast({
-                            title: "Éditer l'utilisateur",
-                            description: "Édition de Jean Dupont",
-                          });
+                          toast.success("Édition de Jean Dupont");
                         }}>Éditer</Button>
                         <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => {
-                          toast({
-                            title: "Confirmation requise",
-                            description: "Voulez-vous vraiment supprimer cet utilisateur?",
-                            variant: "destructive",
-                          });
+                          toast.error("Voulez-vous vraiment supprimer cet utilisateur?");
                         }}>Supprimer</Button>
                       </div>
                     </div>
@@ -149,17 +139,10 @@ const Settings = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => {
-                          toast({
-                            title: "Éditer l'utilisateur",
-                            description: "Édition de Marie Laurent",
-                          });
+                          toast.success("Édition de Marie Laurent");
                         }}>Éditer</Button>
                         <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => {
-                          toast({
-                            title: "Confirmation requise",
-                            description: "Voulez-vous vraiment supprimer cet utilisateur?",
-                            variant: "destructive",
-                          });
+                          toast.error("Voulez-vous vraiment supprimer cet utilisateur?");
                         }}>Supprimer</Button>
                       </div>
                     </div>
@@ -192,17 +175,10 @@ const Settings = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => {
-                          toast({
-                            title: "Éditer l'utilisateur",
-                            description: "Édition de Pierre Martin",
-                          });
+                          toast.success("Édition de Pierre Martin");
                         }}>Éditer</Button>
                         <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => {
-                          toast({
-                            title: "Confirmation requise",
-                            description: "Voulez-vous vraiment supprimer cet utilisateur?",
-                            variant: "destructive",
-                          });
+                          toast.error("Voulez-vous vraiment supprimer cet utilisateur?");
                         }}>Supprimer</Button>
                       </div>
                     </div>
