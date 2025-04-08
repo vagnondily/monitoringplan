@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -11,7 +10,6 @@ import {
   User,
   Settings,
   LogOut,
-  Search,
   ChevronDown,
   Database,
   BarChart,
@@ -46,18 +44,7 @@ import { cn } from '@/lib/utils';
 
 const AppHeader = () => {
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      toast({
-        title: "Search",
-        description: `Searching for "${searchQuery}"`,
-      });
-    }
-  };
 
   const unreadNotifications = 3;
   const unreadMessages = 2;
@@ -97,10 +84,10 @@ const AppHeader = () => {
                           to="/settings"
                         >
                           <div className="mb-2 mt-4 text-lg font-medium text-white">
-                            Overarching Parameters
+                            Paramètres Globaux
                           </div>
                           <p className="text-sm leading-tight text-white/90">
-                            Configure global parameters for the monitoring plan
+                            Configurez les paramètres globaux pour le plan de suivi
                           </p>
                         </Link>
                       </NavigationMenuLink>
@@ -112,7 +99,7 @@ const AppHeader = () => {
                       >
                         <div className="text-sm font-medium leading-none">Sites Process Monitoring Plan</div>
                         <p className="line-clamp-2 text-sm leading-snug text-gray-400">
-                          Manage and monitor site processes
+                          Gérer et surveiller les processus des sites
                         </p>
                       </Link>
                     </li>
@@ -121,9 +108,9 @@ const AppHeader = () => {
                         to="/distribution-plan"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
                       >
-                        <div className="text-sm font-medium leading-none">Distribution Plan</div>
+                        <div className="text-sm font-medium leading-none">Plan de distribution</div>
                         <p className="line-clamp-2 text-sm leading-snug text-gray-400">
-                          Manage distribution schedules and targets
+                          Gérer les calendriers et les cibles de distribution
                         </p>
                       </Link>
                     </li>
@@ -132,9 +119,9 @@ const AppHeader = () => {
                         to="/outcomes-plan"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
                       >
-                        <div className="text-sm font-medium leading-none">Outcomes Plan</div>
+                        <div className="text-sm font-medium leading-none">Plan des résultats</div>
                         <p className="line-clamp-2 text-sm leading-snug text-gray-400">
-                          Define and track expected outcomes
+                          Définir et suivre les résultats attendus
                         </p>
                       </Link>
                     </li>
@@ -143,9 +130,9 @@ const AppHeader = () => {
                         to="/staff-leaves"
                         className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
                       >
-                        <div className="text-sm font-medium leading-none">Staff Leaves Plan</div>
+                        <div className="text-sm font-medium leading-none">Plan des congés du personnel</div>
                         <p className="line-clamp-2 text-sm leading-snug text-gray-400">
-                          Schedule and manage staff leaves
+                          Planifier et gérer les congés du personnel
                         </p>
                       </Link>
                     </li>
@@ -157,7 +144,7 @@ const AppHeader = () => {
                 <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
                   <Link to="/actual-data">
                     <BarChart className="h-4 w-4 mr-2" />
-                    Actual Data
+                    Données réelles
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -166,39 +153,27 @@ const AppHeader = () => {
         </div>
 
         <div className="flex items-center space-x-1 md:space-x-2">
-          <form onSubmit={handleSearch} className="w-60 hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-white" />
-              <Input
-                placeholder="Search..."
-                className="pl-8 w-full bg-blue-700 border-blue-600 text-white placeholder:text-blue-200"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </form>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
-                <Database className="h-4 w-4 mr-2" /> Data <ChevronDown className="ml-1 h-3 w-3" />
+                <Database className="h-4 w-4 mr-2" /> Données <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/data-sources')}>
-                <Database className="h-4 w-4 mr-2" /> Data Sources
+                <Database className="h-4 w-4 mr-2" /> Sources de données
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/sites')}>
                 <Map className="h-4 w-4 mr-2" /> Liste des sites
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/projects')}>
-                <Briefcase className="h-4 w-4 mr-2" /> Liste des projects
+                <Briefcase className="h-4 w-4 mr-2" /> Liste des projets
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/documentation')}>
                 <Book className="h-4 w-4 mr-2" /> Documentation
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel>Actual Data</DropdownMenuLabel>
+              <DropdownMenuLabel>Données réelles</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => navigate('/output')}>
                 <FileOutput className="h-4 w-4 mr-2" /> Output
               </DropdownMenuItem>
@@ -206,7 +181,7 @@ const AppHeader = () => {
                 <FileText className="h-4 w-4 mr-2" /> Outcome
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/process-monitoring')}>
-                <ListChecks className="h-4 w-4 mr-2" /> Process Monitoring
+                <ListChecks className="h-4 w-4 mr-2" /> Suivi des processus
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -214,12 +189,12 @@ const AppHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
-                <ListChecks className="h-4 w-4 mr-2" /> Tools <ChevronDown className="ml-1 h-3 w-3" />
+                <ListChecks className="h-4 w-4 mr-2" /> Outils <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/workflow')}>
-                <ListChecks className="h-4 w-4 mr-2" /> Workflow Designer
+                <ListChecks className="h-4 w-4 mr-2" /> Concepteur de workflow
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -227,21 +202,21 @@ const AppHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
-                <BarChart className="h-4 w-4 mr-2" /> Reports <ChevronDown className="ml-1 h-3 w-3" />
+                <BarChart className="h-4 w-4 mr-2" /> Rapports <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/outcomes-report')}>
-                <FileText className="h-4 w-4 mr-2" /> Outcomes
+                <FileText className="h-4 w-4 mr-2" /> Résultats
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/process-monitoring-report')}>
-                <ListChecks className="h-4 w-4 mr-2" /> Process Monitoring
+                <ListChecks className="h-4 w-4 mr-2" /> Suivi des processus
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/me-report')}>
-                <ClipboardList className="h-4 w-4 mr-2" /> M&E Report
+                <ClipboardList className="h-4 w-4 mr-2" /> Rapport M&E
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/map-visualization')}>
-                <Map className="h-4 w-4 mr-2" /> Visualisation cartographiques des sites
+                <Map className="h-4 w-4 mr-2" /> Visualisation cartographique des sites
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -285,25 +260,25 @@ const AppHeader = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Profil</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/settings')}>
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span>Paramètres</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/about')}>
                 <Info className="mr-2 h-4 w-4" />
-                <span>About</span>
+                <span>À propos</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <HelpCircle className="mr-2 h-4 w-4" />
-                <span>Help</span>
+                <span>Aide</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => toast({ title: 'Logged out' })}>
+              <DropdownMenuItem onClick={() => toast({ title: 'Déconnecté' })}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>Déconnexion</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

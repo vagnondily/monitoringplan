@@ -7,10 +7,9 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OdkDecryptionManager from '@/components/settings/OdkDecryptionManager';
-import { Settings as SettingsIcon, Sliders, User, LayoutList, Database, Palette, Calculator, FileJson, Globe } from 'lucide-react';
+import { Settings as SettingsIcon, Sliders, User, LayoutList, Database, Palette, Calculator, FileJson, Globe, Moon, Sun } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { parametersService } from '@/services/parametersService';
 import Parameters from '@/components/settings/Parameters';
 
 const Settings = () => {
@@ -19,6 +18,20 @@ const Settings = () => {
   const [organizationName, setOrganizationName] = useState('RBJ Madagascar');
   const [defaultCurrency, setDefaultCurrency] = useState('MGA');
   const [dateFormat, setDateFormat] = useState('DD/MM/YYYY');
+  
+  const handleToggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    
+    // Appliquer le mode sombre au niveau du document
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    toast.success(newDarkMode ? 'Mode sombre activé' : 'Mode clair activé');
+  };
   
   const handleSaveSettings = () => {
     toast.success('Paramètres enregistrés avec succès');
@@ -108,11 +121,14 @@ const Settings = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="dark-mode">Mode sombre</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="dark-mode">Mode sombre</Label>
+                    {darkMode ? <Moon className="h-4 w-4"/> : <Sun className="h-4 w-4"/>}
+                  </div>
                   <Switch
                     id="dark-mode"
                     checked={darkMode}
-                    onCheckedChange={setDarkMode}
+                    onCheckedChange={handleToggleDarkMode}
                   />
                 </div>
                 
@@ -152,8 +168,68 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Les paramètres d'apparence seront disponibles prochainement.</p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="primary-color">Couleur primaire</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="primary-color" 
+                      type="color" 
+                      defaultValue="#1e40af" 
+                      className="w-16 h-10 p-1" 
+                    />
+                    <Input defaultValue="#1e40af" className="flex-1" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="secondary-color">Couleur secondaire</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="secondary-color" 
+                      type="color" 
+                      defaultValue="#3b82f6" 
+                      className="w-16 h-10 p-1" 
+                    />
+                    <Input defaultValue="#3b82f6" className="flex-1" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="font-size">Taille de police</Label>
+                  <Select defaultValue="medium">
+                    <SelectTrigger id="font-size">
+                      <SelectValue placeholder="Sélectionner une taille" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="small">Petite</SelectItem>
+                      <SelectItem value="medium">Moyenne</SelectItem>
+                      <SelectItem value="large">Grande</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="border-radius">Rayon des bordures</Label>
+                  <Select defaultValue="medium">
+                    <SelectTrigger id="border-radius">
+                      <SelectValue placeholder="Sélectionner un style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Aucun</SelectItem>
+                      <SelectItem value="small">Petit</SelectItem>
+                      <SelectItem value="medium">Moyen</SelectItem>
+                      <SelectItem value="large">Grand</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardContent>
+            <CardFooter>
+              <Button onClick={handleSaveSettings} className="w-full md:w-auto">
+                Enregistrer les modifications
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
 

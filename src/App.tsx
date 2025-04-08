@@ -20,6 +20,7 @@ import Workflow from "./pages/Workflow";
 import Integrations from "./pages/Integrations";
 import DataSources from "./pages/DataSources";
 import UsersManagement from "./pages/UsersManagement";
+import MapVisualization from "./pages/MapVisualization";
 
 const queryClient = new QueryClient();
 
@@ -139,6 +140,14 @@ const App = () => (
             element={
               <AppLayout>
                 <UsersManagement />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/map-visualization" 
+            element={
+              <AppLayout>
+                <MapVisualization />
               </AppLayout>
             } 
           />
