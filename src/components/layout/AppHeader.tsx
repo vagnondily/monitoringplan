@@ -50,9 +50,7 @@ const AppHeader = () => {
 
   const unreadNotifications = 3;
   const unreadMessages = 2;
-  const AppHeader: React.FC = () => {
-  const { toggleSidebar, user, isDarkMode, toggleDarkMode } = useAppContext();
-    
+
   return (
     <header className="bg-app-blue text-white border-b sticky top-0 z-10 shadow-sm">
       <div className="container mx-auto flex justify-between items-center h-16 px-4">
@@ -60,15 +58,7 @@ const AppHeader = () => {
           <Link to="/" className="text-2xl font-bold text-white flex items-center space-x-2">
             <span>Monitoring Plan</span>
           </Link>
-    <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleDarkMode}
-          className="text-white hover:bg-navy-800"
-        >
-          {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
+
           <NavigationMenu className="ml-6">
             <NavigationMenuList>
               <NavigationMenuItem>
