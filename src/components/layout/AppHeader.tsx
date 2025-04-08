@@ -24,7 +24,9 @@ import {
   FileOutput,
   Map,
   Briefcase,
-  Book
+  Book,
+  FileInput,
+  LayoutTemplate
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -144,7 +146,7 @@ const AppHeader = () => {
                 <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
                   <Link to="/actual-data">
                     <BarChart className="h-4 w-4 mr-2" />
-                    Données réelles
+                    Données actuelles
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -172,17 +174,6 @@ const AppHeader = () => {
               <DropdownMenuItem onClick={() => navigate('/documentation')}>
                 <Book className="h-4 w-4 mr-2" /> Documentation
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Données réelles</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigate('/output')}>
-                <FileOutput className="h-4 w-4 mr-2" /> Output
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/outcome')}>
-                <FileText className="h-4 w-4 mr-2" /> Outcome
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/process-monitoring')}>
-                <ListChecks className="h-4 w-4 mr-2" /> Suivi des processus
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -195,6 +186,12 @@ const AppHeader = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/workflow')}>
                 <ListChecks className="h-4 w-4 mr-2" /> Concepteur de workflow
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/me-report-template')}>
+                <LayoutTemplate className="h-4 w-4 mr-2" /> M&E Report Template Creator
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/report-template')}>
+                <FileInput className="h-4 w-4 mr-2" /> Report Template Creator
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

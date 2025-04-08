@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import OverarchingParameters from '@/components/settings/OverarchingParameters';
 import { ActivitySquare, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -21,9 +20,9 @@ const Parameters = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="overarching" className="w-full">
+          <Tabs defaultValue="parameters" className="w-full">
             <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="overarching" className="flex items-center gap-2">
+              <TabsTrigger value="parameters" className="flex items-center gap-2">
                 <BarChart className="h-4 w-4" />
                 <span>Paramètres globaux</span>
               </TabsTrigger>
@@ -33,8 +32,114 @@ const Parameters = () => {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overarching">
-              <OverarchingParameters />
+            <TabsContent value="parameters">
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+                  <p className="text-sm text-blue-700">
+                    Cette section permet de configurer les paramètres globaux pour le suivi.
+                  </p>
+                </div>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Paramètres généraux</CardTitle>
+                    <CardDescription>
+                      Définir les paramètres globaux pour le suivi
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="threshold-critical">Seuil critique (%)</Label>
+                        <Input type="number" id="threshold-critical" defaultValue="75" min="0" max="100" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="threshold-warning">Seuil d'avertissement (%)</Label>
+                        <Input type="number" id="threshold-warning" defaultValue="90" min="0" max="100" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="aggregation-method">Méthode d'agrégation</Label>
+                        <Select defaultValue="average">
+                          <SelectTrigger id="aggregation-method">
+                            <SelectValue placeholder="Sélectionner une méthode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sum">Somme</SelectItem>
+                            <SelectItem value="average">Moyenne</SelectItem>
+                            <SelectItem value="weighted">Pondérée</SelectItem>
+                            <SelectItem value="min">Minimum</SelectItem>
+                            <SelectItem value="max">Maximum</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="auto-calculation">Calcul automatique des indicateurs</Label>
+                        <Switch id="auto-calculation" defaultChecked={true} />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="notifications-enabled">Activer les notifications de seuil</Label>
+                        <Switch id="notifications-enabled" defaultChecked={true} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Affichage et rapports</CardTitle>
+                    <CardDescription>
+                      Définir les paramètres pour l'affichage et les rapports
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="default-chart">Graphique par défaut</Label>
+                        <Select defaultValue="bar">
+                          <SelectTrigger id="default-chart">
+                            <SelectValue placeholder="Sélectionner un type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="bar">Barres</SelectItem>
+                            <SelectItem value="line">Lignes</SelectItem>
+                            <SelectItem value="pie">Camembert</SelectItem>
+                            <SelectItem value="radar">Radar</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="default-timeframe">Période par défaut</Label>
+                        <Select defaultValue="month">
+                          <SelectTrigger id="default-timeframe">
+                            <SelectValue placeholder="Sélectionner une période" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="week">Semaine</SelectItem>
+                            <SelectItem value="month">Mois</SelectItem>
+                            <SelectItem value="quarter">Trimestre</SelectItem>
+                            <SelectItem value="year">Année</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="include-target">Inclure les cibles dans les graphiques</Label>
+                        <Switch id="include-target" defaultChecked={true} />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="show-baseline">Afficher les valeurs de référence</Label>
+                        <Switch id="show-baseline" defaultChecked={true} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
             
             <TabsContent value="planning">

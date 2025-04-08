@@ -21,6 +21,8 @@ import Integrations from "./pages/Integrations";
 import DataSources from "./pages/DataSources";
 import UsersManagement from "./pages/UsersManagement";
 import MapVisualization from "./pages/MapVisualization";
+import MEReportTemplate from "./pages/MEReportTemplate";
+import ReportTemplate from "./pages/ReportTemplate";
 
 const queryClient = new QueryClient();
 
@@ -148,6 +150,22 @@ const App = () => (
             element={
               <AppLayout>
                 <MapVisualization />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/me-report-template" 
+            element={
+              <AppLayout>
+                <MEReportTemplate />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/report-template" 
+            element={
+              <AppLayout>
+                <ReportTemplate />
               </AppLayout>
             } 
           />
