@@ -24,6 +24,7 @@ import MapVisualization from "./pages/MapVisualization";
 import MEReportTemplate from "./pages/MEReportTemplate";
 import ReportTemplate from "./pages/ReportTemplate";
 import { ThemeProvider } from "./components/ThemeProvider";
+import Login from "@/pages/auth/Login";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -34,6 +35,63 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAppContext();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// Auth routes component - redirects to dashboard if already logged in
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAppContext();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* Auth routes */}
+      <Route path="/login" element={
+        <AuthRoute>
+          <Login />
+        </AuthRoute>
+      } />
+      
+      {/* Protected routes */}
+      <Route element={
+        <ProtectedRoute>
+          <MainLayout />
+        </ProtectedRoute>
+      }>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/sites" element={<Sites />} />
+        
+        {/* Not implemented pages */}
+        <Route path="/planning" element={<NotImplemented />} />
+        <Route path="/actual-data" element={<NotImplemented />} />
+        <Route path="/data" element={<NotImplemented />} />
+        <Route path="/reports" element={<NotImplemented />} />
+        <Route path="/tools" element={<NotImplemented />} />
+        <Route path="/users" element={<NotImplemented />} />
+        <Route path="/settings" element={<NotImplemented />} />
+        
+        {/* Catch all for non-existent routes */}
+        <Route path="*" element={<NotImplemented />} />
+      </Route>
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
