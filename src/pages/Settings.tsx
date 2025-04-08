@@ -13,11 +13,9 @@ import { Settings as SettingsIcon, Lock, Database, Users, Shield, Workflow } fro
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("general");
   
-  const { data: parameters, isLoading: isLoadingParameters } = useQuery({
-    queryKey: ["parameters"],
-    queryFn: parametersService.getOverarchingParameters
-  });
-
+  // We don't need to fetch parameters here as the OverarchingParameters component
+  // will fetch its own data internally
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -37,10 +35,7 @@ const Settings = () => {
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
-          <OverarchingParameters 
-            parameters={parameters || []} 
-            isLoading={isLoadingParameters}
-          />
+          <OverarchingParameters />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">
