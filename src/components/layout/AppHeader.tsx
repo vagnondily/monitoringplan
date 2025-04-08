@@ -5,21 +5,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Bell, 
-  MessageSquare, 
-  User, 
-  Settings, 
-  LogOut, 
+import {
+  Bell,
+  MessageSquare,
+  User,
+  Settings,
+  LogOut,
   Search,
-  GitBranch,
-  Globe,
+  ChevronDown,
   Database,
   BarChart,
   FileText,
   Home,
   Info,
-  HelpCircle
+  HelpCircle,
+  ListChecks,
+  Calendar,
+  ClipboardList,
+  UserPlus,
+  FileOutput,
+  Map,
+  Briefcase,
+  Book
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -73,14 +80,79 @@ const AppHeader = () => {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+              
               <NavigationMenuItem>
-                <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
-                  <Link to="/sites">
-                    <Globe className="h-4 w-4 mr-2" />
-                    Sites
-                  </Link>
-                </NavigationMenuLink>
+                <NavigationMenuTrigger className="text-white bg-transparent hover:bg-blue-700">
+                  <span className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Planning
+                  </span>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4">
+                    <li className="row-span-3">
+                      <NavigationMenuLink asChild>
+                        <Link
+                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-blue-500 to-blue-900 p-6 no-underline outline-none focus:shadow-md"
+                          to="/settings"
+                        >
+                          <div className="mb-2 mt-4 text-lg font-medium text-white">
+                            Overarching Parameters
+                          </div>
+                          <p className="text-sm leading-tight text-white/90">
+                            Configure global parameters for the monitoring plan
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <Link
+                        to="/sites"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
+                      >
+                        <div className="text-sm font-medium leading-none">Sites Process Monitoring Plan</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-gray-400">
+                          Manage and monitor site processes
+                        </p>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/distribution-plan"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
+                      >
+                        <div className="text-sm font-medium leading-none">Distribution Plan</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-gray-400">
+                          Manage distribution schedules and targets
+                        </p>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/outcomes-plan"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
+                      >
+                        <div className="text-sm font-medium leading-none">Outcomes Plan</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-gray-400">
+                          Define and track expected outcomes
+                        </p>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/staff-leaves"
+                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-100 hover:text-blue-900 focus:bg-blue-100 focus:text-blue-900"
+                      >
+                        <div className="text-sm font-medium leading-none">Staff Leaves Plan</div>
+                        <p className="line-clamp-2 text-sm leading-snug text-gray-400">
+                          Schedule and manage staff leaves
+                        </p>
+                      </Link>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
               </NavigationMenuItem>
+              
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={cn("text-white", navigationMenuTriggerStyle(), "bg-transparent hover:bg-blue-700")}>
                   <Link to="/actual-data">
@@ -109,21 +181,32 @@ const AppHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
-                <Database className="h-4 w-4 mr-2" /> Data
+                <Database className="h-4 w-4 mr-2" /> Data <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/data-sources')}>
                 <Database className="h-4 w-4 mr-2" /> Data Sources
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/actual-data')}>
-                <FileText className="h-4 w-4 mr-2" /> Actual Data
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/sites')}>
-                <Globe className="h-4 w-4 mr-2" /> Sites
+                <Map className="h-4 w-4 mr-2" /> Liste des sites
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/projects')}>
-                <BarChart className="h-4 w-4 mr-2" /> Projects
+                <Briefcase className="h-4 w-4 mr-2" /> Liste des projects
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/documentation')}>
+                <Book className="h-4 w-4 mr-2" /> Documentation
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Actual Data</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => navigate('/output')}>
+                <FileOutput className="h-4 w-4 mr-2" /> Output
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/outcome')}>
+                <FileText className="h-4 w-4 mr-2" /> Outcome
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/process-monitoring')}>
+                <ListChecks className="h-4 w-4 mr-2" /> Process Monitoring
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -131,24 +214,34 @@ const AppHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
-                <GitBranch className="h-4 w-4 mr-2" /> Tools
+                <ListChecks className="h-4 w-4 mr-2" /> Tools <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigate('/workflow')}>
-                <GitBranch className="h-4 w-4 mr-2" /> Workflow Designer
+                <ListChecks className="h-4 w-4 mr-2" /> Workflow Designer
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/integrations')}>
-                <Globe className="h-4 w-4 mr-2" /> Integrations
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-white hover:bg-blue-700 hidden md:flex">
+                <BarChart className="h-4 w-4 mr-2" /> Reports <ChevronDown className="ml-1 h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate('/outcomes-report')}>
+                <FileText className="h-4 w-4 mr-2" /> Outcomes
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/import')}>
-                <Database className="h-4 w-4 mr-2" /> Import
+              <DropdownMenuItem onClick={() => navigate('/process-monitoring-report')}>
+                <ListChecks className="h-4 w-4 mr-2" /> Process Monitoring
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/export')}>
-                <Database className="h-4 w-4 mr-2" /> Export
+              <DropdownMenuItem onClick={() => navigate('/me-report')}>
+                <ClipboardList className="h-4 w-4 mr-2" /> M&E Report
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/settings')}>
-                <Settings className="h-4 w-4 mr-2" /> Settings
+              <DropdownMenuItem onClick={() => navigate('/map-visualization')}>
+                <Map className="h-4 w-4 mr-2" /> Visualisation cartographiques des sites
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

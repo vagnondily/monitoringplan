@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Sites from "./pages/Sites";
+import SiteDetails from "./pages/SiteDetails";
 import Projects from "./pages/Projects";
 import Import from "./pages/Import";
 import Export from "./pages/Export";
@@ -18,6 +19,7 @@ import Notifications from "./pages/Notifications";
 import Workflow from "./pages/Workflow";
 import Integrations from "./pages/Integrations";
 import DataSources from "./pages/DataSources";
+import UsersManagement from "./pages/UsersManagement";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,14 @@ const App = () => (
             element={
               <AppLayout>
                 <Sites />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/sites/:id" 
+            element={
+              <AppLayout>
+                <SiteDetails />
               </AppLayout>
             } 
           />
@@ -121,6 +131,14 @@ const App = () => (
             element={
               <AppLayout>
                 <DataSources />
+              </AppLayout>
+            } 
+          />
+          <Route 
+            path="/users" 
+            element={
+              <AppLayout>
+                <UsersManagement />
               </AppLayout>
             } 
           />
