@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -66,8 +67,9 @@ const AppHeader = () => {
     <header className="bg-app-blue text-white border-b sticky top-0 z-10 shadow-sm">
       <div className="container mx-auto flex justify-between items-center h-16 px-4">
         <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold text-white flex items-center space-x-2">
-            <span>Monitoring Plan</span>
+          <Link to="/" className="text-xl font-bold text-white flex flex-col items-start mr-4">
+            <span className="text-2xl leading-tight">MEMS</span>
+            <span className="text-xs leading-tight">Monitoring & Evaluation Management System</span>
           </Link>
 
           <NavigationMenu className="ml-6">
