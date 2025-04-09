@@ -7,21 +7,23 @@ import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
 
 interface FileUploaderProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   acceptedFileTypes: string;
   maxSize?: number;
-  onFileUpload: (file: File) => void;
+  maxFileSizeMB?: number; // Adding this for backward compatibility
+  onFileUpload?: (file: File) => void;
   templateAvailable?: boolean;
   onTemplateDownload?: () => void;
 }
 
 const FileUploader = ({ 
-  title, 
-  description, 
+  title = "Upload File", 
+  description = "Drag and drop or click to upload", 
   acceptedFileTypes, 
-  maxSize = 5, 
-  onFileUpload,
+  maxSize = 5,
+  maxFileSizeMB,  // Optional param for backward compatibility
+  onFileUpload = () => {},
   templateAvailable = false,
   onTemplateDownload
 }: FileUploaderProps) => {
@@ -29,6 +31,9 @@ const FileUploader = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Use maxFileSizeMB if provided, otherwise use maxSize
+  const effectiveMaxSize = maxFileSizeMB || maxSize;
   
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -65,8 +70,8 @@ const FileUploader = ({
     }
     
     // Vérifier la taille du fichier (en MB)
-    if (file.size > maxSize * 1024 * 1024) {
-      toast.error(`Le fichier est trop volumineux. Taille maximale: ${maxSize}MB`);
+    if (file.size > effectiveMaxSize * 1024 * 1024) {
+      toast.error(`Le fichier est trop volumineux. Taille maximale: ${effectiveMaxSize}MB`);
       return;
     }
     

@@ -13,23 +13,48 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import LocationCreator from '@/components/locations/LocationCreator';
+import { Site } from '@/types';
 
 const Sites = () => {
   const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
   
-  // Mock data for sites list
-  const mockSites = [
-    { id: '1', name: 'Site 1', location: 'Location 1', status: 'active' },
-    { id: '2', name: 'Site 2', location: 'Location 2', status: 'inactive' },
-    { id: '3', name: 'Site 3', location: 'Location 3', status: 'pending' },
+  // Mock data for sites list that matches the Site interface
+  const mockSites: Site[] = [
+    { 
+      id: '1', 
+      name: 'Site 1', 
+      location: 'Location 1', 
+      status: 'active', 
+      lastUpdate: '2025-04-01',
+      ipAddress: '192.168.1.1',
+      manager: 'John Doe'
+    },
+    { 
+      id: '2', 
+      name: 'Site 2', 
+      location: 'Location 2', 
+      status: 'inactive', 
+      lastUpdate: '2025-03-28',
+      ipAddress: '192.168.1.2',
+      manager: 'Jane Smith'
+    },
+    { 
+      id: '3', 
+      name: 'Site 3', 
+      location: 'Location 3', 
+      status: 'pending', 
+      lastUpdate: '2025-04-05',
+      ipAddress: '192.168.1.3',
+      manager: 'Bob Johnson'
+    },
   ];
 
-  const handleEditSite = (id: string) => {
-    console.log(`Editing site with id: ${id}`);
+  const handleEditSite = (site: Site) => {
+    console.log(`Editing site with id: ${site.id}`);
   };
 
-  const handleDeleteSite = (id: string) => {
-    console.log(`Deleting site with id: ${id}`);
+  const handleDeleteSite = (site: Site) => {
+    console.log(`Deleting site with id: ${site.id}`);
   };
 
   return (

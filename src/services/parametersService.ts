@@ -1,7 +1,15 @@
-
 import { OverarchingParameter, Site } from '@/types';
 
-// Données de démonstration pour les paramètres généraux
+// Export FIELD_OFFICES so it can be imported elsewhere
+export const FIELD_OFFICES = [
+  "Antananarivo",
+  "Toamasina",
+  "Mahajanga",
+  "Fianarantsoa",
+  "Toliara"
+];
+
+// Mock data for overarching parameters
 const mockOverarchingParameters: OverarchingParameter[] = [
   {
     id: '1',
@@ -46,16 +54,8 @@ const mockOverarchingParameters: OverarchingParameter[] = [
     feasibilityRatio: 0.77 // feasibleNumberOfSites / targetedNumberOfSites
   }
 ];
-  // Service pour gérer les Bureaux
-  export const FIELD_OFFICES = [
-    "Antananarivo",
-    "Toamasina",
-    "Mahajanga",
-    "Fianarantsoa",
-    "Toliara"
-  ];
 
-// Liste des catégories d'activités disponibles
+// List of activity categories
 export const activityCategories = [
   'Unconditional Resource Transfers (URT)',
   'Malnutrition prevention programme (NPA)',
@@ -66,7 +66,7 @@ export const activityCategories = [
   'Action to protect against climate shocks (CAR)'
 ];
 
-// Service pour gérer les paramètres généraux
+// Service for managing parameters
 export const parametersService = {
   getOverarchingParameters: async (): Promise<OverarchingParameter[]> => {
     // Simuler une requête API
@@ -82,7 +82,6 @@ export const parametersService = {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(activityCategories);
-        resolve(FIELD_OFFICES)
       }, 300);
     });
   },

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -18,7 +17,6 @@ import {
   PieChart as RePieChart, Pie, Cell
 } from 'recharts';
 
-// Mock data for charts
 const activityData = [
   { month: 'Jan', planned: 45, completed: 38 },
   { month: 'Feb', planned: 52, completed: 48 },
@@ -338,9 +336,13 @@ const ActualData = () => {
         </CardHeader>
         <CardContent>
           <FileUploader
-            acceptedFileTypes=".xlsx,.xls,.csv"
-            maxFileSizeMB={10}
+            title="Importer des données"
             description="Formats acceptés: Excel et CSV. Taille maximale: 10 MB."
+            acceptedFileTypes=".xlsx,.xls,.csv"
+            maxSize={10}
+            onFileUpload={(file) => console.log("File uploaded:", file)}
+            templateAvailable={true}
+            onTemplateDownload={() => console.log("Template download requested")}
           />
         </CardContent>
       </Card>
