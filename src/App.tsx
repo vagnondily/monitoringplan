@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import AppLayout from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Sites from "./pages/Sites";
@@ -25,7 +24,6 @@ import ReportTemplate from "./pages/ReportTemplate";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Login from "@/pages/auth/Login";
 import { useAppContext } from "@/context/AppContext";
-import Index from "./pages/Index";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -53,61 +51,71 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAppContext();
   
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   
   return <>{children}</>;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="app-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Auth routes */}
-            <Route path="/login" element={
-              <AuthRoute>
-                <Login />
-              </AuthRoute>
-            } />
-            
-            {/* Root route redirects to dashboard or login */}
-            <Route path="/" element={<Index />} />
-            
-            {/* Protected routes */}
-            <Route element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/sites" element={<Sites />} />
-              <Route path="/sites/:id" element={<SiteDetails />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/import" element={<Import />} />
-              <Route path="/export" element={<Export />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/actual-data" element={<ActualData />} />
-              <Route path="/messaging" element={<Messaging />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/workflow" element={<Workflow />} />
-              <Route path="/integrations" element={<Integrations />} />
-              <Route path="/data-sources" element={<DataSources />} />
-              <Route path="/users" element={<UsersManagement />} />
-              <Route path="/map-visualization" element={<MapVisualization />} />
-              <Route path="/report-template" element={<ReportTemplate />} />
-            </Route>
-            
-            {/* Catch all for non-existent routes */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const { isAuthenticated } = useAppContext();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="app-theme">
+        <TooltipProvider>
+          <BrowserRouter>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              {/* Auth routes */}
+              <Route path="/login" element={
+                <AuthRoute>
+                  <Login />
+                </AuthRoute>
+              } />
+              
+              {/* Root route redirects to dashboard or login */}
+              <Route path="/" element={
+                isAuthenticated ? 
+                  <Navigate to="/dashboard" replace /> : 
+                  <Navigate to="/login" replace />
+              } />
+              
+              {/* Protected routes */}
+              <Route element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Outlet />
+                  </AppLayout>
+                </ProtectedRoute>
+              }>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/sites" element={<Sites />} />
+                <Route path="/sites/:id" element={<SiteDetails />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/import" element={<Import />} />
+                <Route path="/export" element={<Export />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/actual-data" element={<ActualData />} />
+                <Route path="/messaging" element={<Messaging />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/workflow" element={<Workflow />} />
+                <Route path="/integrations" element={<Integrations />} />
+                <Route path="/data-sources" element={<DataSources />} />
+                <Route path="/users" element={<UsersManagement />} />
+                <Route path="/map-visualization" element={<MapVisualization />} />
+                <Route path="/report-template" element={<ReportTemplate />} />
+              </Route>
+              
+              {/* Catch all for non-existent routes */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

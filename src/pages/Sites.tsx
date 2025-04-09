@@ -16,6 +16,21 @@ import LocationCreator from '@/components/locations/LocationCreator';
 
 const Sites = () => {
   const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+  
+  // Mock data for sites list
+  const mockSites = [
+    { id: '1', name: 'Site 1', location: 'Location 1', status: 'active' },
+    { id: '2', name: 'Site 2', location: 'Location 2', status: 'inactive' },
+    { id: '3', name: 'Site 3', location: 'Location 3', status: 'pending' },
+  ];
+
+  const handleEditSite = (id: string) => {
+    console.log(`Editing site with id: ${id}`);
+  };
+
+  const handleDeleteSite = (id: string) => {
+    console.log(`Deleting site with id: ${id}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -48,7 +63,11 @@ const Sites = () => {
         </TabsList>
         
         <TabsContent value="list">
-          <SitesList />
+          <SitesList 
+            sites={mockSites} 
+            onEdit={handleEditSite} 
+            onDelete={handleDeleteSite} 
+          />
         </TabsContent>
         
         <TabsContent value="map">

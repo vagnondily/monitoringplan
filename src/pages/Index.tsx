@@ -5,8 +5,6 @@ import { useAppContext } from '@/context/AppContext';
 const Index = () => {
   const { isAuthenticated } = useAppContext();
   
-  // If authenticated, redirect to dashboard
-  // If not authenticated, redirect to login
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
 };
 
