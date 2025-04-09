@@ -1,239 +1,604 @@
 
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Check, X } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from "@/components/ui/checkbox";
+
+// Define the schema for the form
+const formSchema = z.object({
+  firstName: z.string().min(2, {
+    message: 'Le prénom doit contenir au moins 2 caractères.',
+  }),
+  lastName: z.string().min(2, {
+    message: 'Le nom doit contenir au moins 2 caractères.',
+  }),
+  email: z.string().email({
+    message: 'Veuillez entrer une adresse email valide.',
+  }),
+  role: z.enum(['super_user', 'administrator', 'creator', 'validator', 'viewer'], {
+    required_error: 'Veuillez sélectionner un rôle.',
+  }),
+  jobTitle: z.string().min(2, {
+    message: 'Le titre du poste doit contenir au moins 2 caractères.',
+  }),
+  fieldOffice: z.string().min(1, {
+    message: 'Veuillez sélectionner un bureau.',
+  }),
+  active: z.boolean().default(true),
+  accessTabs: z.object({
+    dashboard: z.boolean().default(true),
+    sites: z.boolean().default(false),
+    planning: z.boolean().default(false),
+    actualData: z.boolean().default(false),
+    data: z.boolean().default(false),
+    reports: z.boolean().default(false),
+    tools: z.boolean().default(false),
+    users: z.boolean().default(false),
+    settings: z.boolean().default(false),
+  }).optional(),
+  adminTabs: z.object({
+    general: z.boolean().default(true),
+    parameters: z.boolean().default(false),
+    overarching: z.boolean().default(false),
+    odkDecryption: z.boolean().default(false),
+    users: z.boolean().default(false),
+  }).optional(),
+});
 
 interface UserFormProps {
   user?: any;
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  fieldOffices?: string[];
+  roleDescriptions?: {[key: string]: string};
 }
 
-const UserForm: React.FC<UserFormProps> = ({ user, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    role: user?.role || '',
-    active: user?.active !== undefined ? user.active : true,
-    notes: user?.notes || '',
-    password: '',
-    confirmPassword: '',
+const UserForm = ({ 
+  user, 
+  onSubmit, 
+  onCancel,
+  fieldOffices = [], 
+  roleDescriptions = {} 
+}: UserFormProps) => {
+  const [activeTab, setActiveTab] = useState('details');
+
+  // Set default values based on user prop or empty values for new user
+  const defaultValues = user
+    ? {
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.role || 'viewer',
+        jobTitle: user.jobTitle || '',
+        fieldOffice: user.fieldOffice || '',
+        active: user.active !== undefined ? user.active : true,
+        accessTabs: {
+          dashboard: true,
+          sites: false,
+          planning: false,
+          actualData: false,
+          data: false,
+          reports: false,
+          tools: false,
+          users: false,
+          settings: false,
+          ...(user.accessTabs || {}),
+        },
+        adminTabs: {
+          general: true,
+          parameters: false,
+          overarching: false,
+          odkDecryption: false,
+          users: false,
+          ...(user.adminTabs || {}),
+        },
+      }
+    : {
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: 'viewer' as const,
+        jobTitle: '',
+        fieldOffice: '',
+        active: true,
+        accessTabs: {
+          dashboard: true,
+          sites: false,
+          planning: false,
+          actualData: false,
+          data: false,
+          reports: false,
+          tools: false,
+          users: false,
+          settings: false,
+        },
+        adminTabs: {
+          general: true,
+          parameters: false,
+          overarching: false,
+          odkDecryption: false,
+          users: false,
+        },
+      };
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData({ ...formData, [field]: value });
-    
-    // Clear error when field is updated
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
-    }
+  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+    onSubmit(values);
   };
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Le nom est requis';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'L\'email est requis';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Format d\'email invalide';
-    }
-    
-    if (!formData.role) {
-      newErrors.role = 'Le rôle est requis';
-    }
-    
-    // Validate password only for new users
-    if (!user) {
-      if (!formData.password) {
-        newErrors.password = 'Le mot de passe est requis';
-      } else if (formData.password.length < 6) {
-        newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
-      }
-      
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
-      }
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (validate()) {
-      // Prepare data for API
-      const userData = { ...formData };
-      
-      // Remove confirmPassword field before submission
-      delete userData.confirmPassword;
-      
-      // If editing and password is empty, don't send it
-      if (user && !userData.password) {
-        delete userData.password;
-      }
-      
-      onSubmit(userData);
-    }
-  };
+  const watchRole = form.watch('role');
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Nom complet *</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="Nom et prénom"
-            className={errors.name ? 'border-red-500' : ''}
-          />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="email">Email *</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
-            placeholder="exemple@email.com"
-            className={errors.email ? 'border-red-500' : ''}
-          />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="role">Rôle *</Label>
-          <Select
-            value={formData.role}
-            onValueChange={(value) => handleChange('role', value)}
-          >
-            <SelectTrigger id="role" className={errors.role ? 'border-red-500' : ''}>
-              <SelectValue placeholder="Sélectionner un rôle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="super_user">Super Utilisateur</SelectItem>
-              <SelectItem value="admin">Administrateur</SelectItem>
-              <SelectItem value="field_officer">Agent de terrain</SelectItem>
-              <SelectItem value="program_manager">Responsable de programme</SelectItem>
-              <SelectItem value="creator">Créateur</SelectItem>
-              <SelectItem value="validator">Validateur</SelectItem>
-              <SelectItem value="viewer">Lecteur</SelectItem>
-              <SelectItem value="data_analyst">Analyste de données</SelectItem>
-              <SelectItem value="it_support">Support IT</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.role && <p className="text-red-500 text-sm">{errors.role}</p>}
-        </div>
-        
-        <div className="space-y-2 flex flex-col justify-end">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="active"
-              checked={formData.active}
-              onCheckedChange={(checked) => handleChange('active', checked)}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="details">Informations</TabsTrigger>
+            <TabsTrigger value="permissions">Permissions</TabsTrigger>
+            <TabsTrigger value="status">Statut</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="details" className="space-y-4 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prénom</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Prénom" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nom</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nom" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="email@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <Label htmlFor="active">Utilisateur actif</Label>
-          </div>
+            
+            <FormField
+              control={form.control}
+              name="jobTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Titre du poste</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Titre du poste" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="fieldOffice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bureau</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un bureau" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {fieldOffices.map(office => (
+                        <SelectItem key={office} value={office}>
+                          {office}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+          
+          <TabsContent value="permissions" className="space-y-4 pt-4">
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rôle</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un rôle" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="super_user">Super utilisateur</SelectItem>
+                      <SelectItem value="administrator">Administrateur</SelectItem>
+                      <SelectItem value="creator">Créateur</SelectItem>
+                      <SelectItem value="validator">Validateur</SelectItem>
+                      <SelectItem value="viewer">Lecteur</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {roleDescriptions[field.value] && (
+                    <FormDescription>
+                      {roleDescriptions[field.value]}
+                    </FormDescription>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <div className="border rounded-md p-4">
+              <h3 className="font-medium mb-2">Accès aux onglets</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <FormField
+                  control={form.control}
+                  name="accessTabs.dashboard"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Dashboard</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.sites"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Sites</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.planning"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Planning</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.actualData"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Données actuelles</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.data"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Données</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.reports"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Rapports</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.tools"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Outils</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.users"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Utilisateurs</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="accessTabs.settings"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Paramètres</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            
+            {(watchRole === 'administrator' || watchRole === 'super_user') && (
+              <div className="border rounded-md p-4">
+                <h3 className="font-medium mb-2">Accès aux onglets d'administration</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <FormField
+                    control={form.control}
+                    name="adminTabs.general"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Général</FormLabel>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="adminTabs.parameters"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Paramètres système</FormLabel>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="adminTabs.overarching"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Paramètres généraux</FormLabel>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="adminTabs.odkDecryption"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Décryptage ODK</FormLabel>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="adminTabs.users"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox 
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Utilisateurs</FormLabel>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="status" className="space-y-4 pt-4">
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Statut du compte</FormLabel>
+                    <FormDescription>
+                      {field.value ? 'Le compte est actif et peut se connecter.' : 'Le compte est inactif et ne peut pas se connecter.'}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            {user && (
+              <div className="rounded-lg border p-4">
+                <h3 className="font-medium">Informations supplémentaires</h3>
+                
+                <div className="mt-2 space-y-2 text-sm">
+                  {user.lastLogin && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Dernière connexion:</span>
+                      <span>{new Date(user.lastLogin).toLocaleString()}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">ID utilisateur:</span>
+                    <span className="font-mono">{user.id}</span>
+                  </div>
+                  
+                  {user.createdAt && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Créé le:</span>
+                      <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+        
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Annuler
+          </Button>
+          <Button type="submit">
+            {user ? 'Mettre à jour' : 'Créer l\'utilisateur'}
+          </Button>
         </div>
-        
-        {!user && (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe *</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleChange('password', e.target.value)}
-                placeholder="Minimum 6 caractères"
-                className={errors.password ? 'border-red-500' : ''}
-              />
-              {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                placeholder="Retapez le mot de passe"
-                className={errors.confirmPassword ? 'border-red-500' : ''}
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-            </div>
-          </>
-        )}
-        
-        {user && (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="password">Nouveau mot de passe (optionnel)</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleChange('password', e.target.value)}
-                placeholder="Laissez vide pour ne pas changer"
-                className={errors.password ? 'border-red-500' : ''}
-              />
-              {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                placeholder="Retapez le nouveau mot de passe"
-                className={errors.confirmPassword ? 'border-red-500' : ''}
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-            </div>
-          </>
-        )}
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
-        <Textarea
-          id="notes"
-          value={formData.notes}
-          onChange={(e) => handleChange('notes', e.target.value)}
-          placeholder="Informations complémentaires sur l'utilisateur"
-        />
-      </div>
-      
-      <div className="flex justify-end space-x-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          <X className="mr-2 h-4 w-4" />
-          Annuler
-        </Button>
-        <Button type="submit">
-          <Check className="mr-2 h-4 w-4" />
-          {user ? 'Mettre à jour' : 'Créer'}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 };
 

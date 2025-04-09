@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import Parameters from '@/components/settings/Parameters';
 import OdkDecryptionManager from '@/components/settings/OdkDecryptionManager';
 import OverarchingParameters from '@/components/settings/OverarchingParameters';
+import UsersManagementSettings from '@/components/settings/UsersManagementSettings';
 import { useAppContext } from '@/context/AppContext';
 import { Check, MoonIcon, SunIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,9 +14,12 @@ import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const Settings = () => {
-  const { isDarkMode, toggleDarkMode, language, setLanguage } = useAppContext();
+  const { isDarkMode, toggleDarkMode, language, setLanguage, user } = useAppContext();
   const [activeTab, setActiveTab] = useState('general');
   const appVersion = "1.0.0";
+
+  // Check if user is admin to allow users management
+  const isAdmin = user?.role === 'administrator' || user?.role === 'super_user';
 
   return (
     <div className="space-y-6">
@@ -32,6 +36,7 @@ const Settings = () => {
           <TabsTrigger value="parameters">Paramètres système</TabsTrigger>
           <TabsTrigger value="overarching">Paramètres généraux</TabsTrigger>
           <TabsTrigger value="odkDecryption">Décryptage ODK</TabsTrigger>
+          {isAdmin && <TabsTrigger value="users">Utilisateurs</TabsTrigger>}
           <TabsTrigger value="about">À propos</TabsTrigger>
         </TabsList>
 
@@ -107,6 +112,12 @@ const Settings = () => {
         <TabsContent value="odkDecryption">
           <OdkDecryptionManager />
         </TabsContent>
+        
+        {isAdmin && (
+          <TabsContent value="users">
+            <UsersManagementSettings />
+          </TabsContent>
+        )}
         
         <TabsContent value="about">
           <Card className="p-6">
