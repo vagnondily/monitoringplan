@@ -1,3 +1,4 @@
+
 // This optional code is used to register a service worker.
 // register() is not called by default.
 
@@ -6,6 +7,9 @@
 // will only see deployed updates on subsequent visits to a page, after all the
 // existing tabs open on the page have been closed, since previously cached
 // resources are updated in the background.
+
+// To learn more about the benefits of this model and instructions on how to
+// opt-in, read https://cra.link/PWA
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -18,12 +22,13 @@ const isLocalhost = Boolean(
 type Config = {
   onSuccess?: (registration: ServiceWorkerRegistration) => void;
   onUpdate?: (registration: ServiceWorkerRegistration) => void;
+  scope?: string;
 };
 
 export function register(config?: Config) {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
-    const publicUrl = new URL(import.meta.env.BASE_URL, window.location.href);
+    const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href);
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
@@ -32,7 +37,7 @@ export function register(config?: Config) {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${import.meta.env.BASE_URL}service-worker.js`;
+      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
@@ -56,7 +61,7 @@ export function register(config?: Config) {
 
 function registerValidSW(swUrl: string, config?: Config) {
   navigator.serviceWorker
-    .register(swUrl)
+    .register(swUrl, { scope: config?.scope || '/' })
     .then((registration) => {
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;

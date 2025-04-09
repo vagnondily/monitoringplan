@@ -7,7 +7,7 @@ const Index = () => {
   
   // If authenticated, redirect to dashboard
   // If not authenticated, redirect to login
-  return isAuthenticated ? <Navigate to="/" replace /> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
 };
 
 export default Index;
