@@ -1,8 +1,11 @@
 
 import React from 'react';
 import LoginForm from '@/components/auth/LoginForm';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="mb-6">
