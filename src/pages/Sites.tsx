@@ -53,8 +53,9 @@ const Sites = () => {
     console.log(`Editing site with id: ${site.id}`);
   };
 
-  const handleDeleteSite = (site: Site) => {
-    console.log(`Deleting site with id: ${site.id}`);
+  // Changed the function signature to match what SitesList expects
+  const handleDeleteSite = (id: string) => {
+    console.log(`Deleting site with id: ${id}`);
   };
 
   return (
