@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Table, 
@@ -153,6 +154,10 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
     }
   };
 
+  const handleRowDoubleClick = (site: Site) => {
+    onEdit(site);
+  };
+
   return (
     <div className="space-y-4">
       <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'standard' | 'planning')}>
@@ -205,7 +210,11 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
                 </TableRow>
               ) : (
                 sortedSites.map((site) => (
-                  <TableRow key={site.id}>
+                  <TableRow 
+                    key={site.id} 
+                    onDoubleClick={() => handleRowDoubleClick(site)}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
                     <TableCell className="text-center">{getActiveStatusIcon(site.activeSite)}</TableCell>
                     <TableCell className="font-medium">{site.name}</TableCell>
                     <TableCell>
@@ -270,7 +279,11 @@ const SitesList = ({ sites, onEdit, onDelete, onUpdateMonthlyPlan }: SitesListPr
                   </TableRow>
                 ) : (
                   sortedSites.map((site) => (
-                    <TableRow key={site.id}>
+                    <TableRow 
+                      key={site.id}
+                      onDoubleClick={() => handleRowDoubleClick(site)}
+                      className="cursor-pointer hover:bg-muted/50"
+                    >
                       <TableCell className="sticky left-0 bg-white z-10 font-medium">
                         <div className="flex items-center gap-2">
                           {getActiveStatusIcon(site.activeSite)}
