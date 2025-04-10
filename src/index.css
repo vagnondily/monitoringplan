@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -50,12 +49,6 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* App specific colors */
-    --app-blue: 206 100% 30%;
-    --app-lightBlue: 206 80% 45%;
-    --app-gray: 220 14% 96%;
-    --app-darkBlue: 206 100% 20%;
   }
 
   .dark {
@@ -94,12 +87,6 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* App specific colors - dark mode */
-    --app-blue: 206 80% 50%;
-    --app-lightBlue: 206 80% 60%;
-    --app-gray: 220 14% 20%;
-    --app-darkBlue: 206 80% 40%;
   }
 }
 
@@ -111,32 +98,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-.bg-app-blue {
-  background-color: hsl(var(--app-blue));
-}
-
-.bg-app-lightBlue {
-  background-color: hsl(var(--app-lightBlue));
-}
-
-.bg-app-gray {
-  background-color: hsl(var(--app-gray));
-}
-
-.bg-app-darkBlue {
-  background-color: hsl(var(--app-darkBlue));
-}
-
-.text-app-blue {
-  color: hsl(var(--app-blue));
-}
-
-.text-app-lightBlue {
-  color: hsl(var(--app-lightBlue));
-}
-
-.border-app-blue {
-  border-color: hsl(var(--app-blue));
 }

@@ -1,114 +1,329 @@
 
 import React, { useState } from 'react';
-import SitesList from '@/components/sites/SitesList';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PlusCircle, MapPin, FileUp } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
 } from '@/components/ui/dialog';
-import LocationCreator from '@/components/locations/LocationCreator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Plus, Download, Upload } from 'lucide-react';
+import SitesList from '@/components/sites/SitesList';
+import { siteService } from '@/services/dataService';
 import { Site } from '@/types';
+import FileUploader from '@/components/data/FileUploader';
 
 const Sites = () => {
-  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
-  
-  // Mock data for sites list that matches the Site interface
-  const mockSites: Site[] = [
-    { 
-      id: '1', 
-      name: 'Site 1', 
-      location: 'Location 1', 
-      status: 'active', 
-      lastUpdate: '2025-04-01',
-      ipAddress: '192.168.1.1',
-      manager: 'John Doe'
-    },
-    { 
-      id: '2', 
-      name: 'Site 2', 
-      location: 'Location 2', 
-      status: 'inactive', 
-      lastUpdate: '2025-03-28',
-      ipAddress: '192.168.1.2',
-      manager: 'Jane Smith'
-    },
-    { 
-      id: '3', 
-      name: 'Site 3', 
-      location: 'Location 3', 
-      status: 'pending', 
-      lastUpdate: '2025-04-05',
-      ipAddress: '192.168.1.3',
-      manager: 'Bob Johnson'
-    },
-  ];
+  const queryClient = useQueryClient();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [formData, setFormData] = useState<Partial<Site>>({
+    name: '',
+    location: '',
+    status: 'Actif',
+    ipAddress: '',
+    manager: ''
+  });
+  const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
 
-  const handleEditSite = (site: Site) => {
-    console.log(`Editing site with id: ${site.id}`);
+  const { data: sites = [], isLoading } = useQuery<Site[]>({
+    queryKey: ['sites'],
+    queryFn: siteService.getSites
+  });
+
+  const createSiteMutation = useMutation({
+    mutationFn: (newSite: Omit<Site, 'id' | 'lastUpdate'>) => 
+      siteService.createSite(newSite as Omit<Site, 'id'>),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
+      resetFormAndCloseDialog();
+    }
+  });
+
+  const updateSiteMutation = useMutation({
+    mutationFn: (site: Site) => siteService.updateSite(site),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
+      resetFormAndCloseDialog();
+    }
+  });
+
+  const deleteSiteMutation = useMutation({
+    mutationFn: (id: string) => siteService.deleteSite(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
+      setIsDeleteDialogOpen(false);
+    }
+  });
+
+  const exportToExcelMutation = useMutation({
+    mutationFn: siteService.exportToExcel
+  });
+
+  const importFromExcelMutation = useMutation({
+    mutationFn: (file: File) => siteService.importFromExcel(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
+      setIsImportDialogOpen(false);
+    }
+  });
+
+  const resetFormAndCloseDialog = () => {
+    setFormData({
+      name: '',
+      location: '',
+      status: 'Actif',
+      ipAddress: '',
+      manager: ''
+    });
+    setIsAddDialogOpen(false);
+    setSelectedSiteId(null);
   };
 
-  // Changed the function signature to match what SitesList expects
-  const handleDeleteSite = (id: string) => {
-    console.log(`Deleting site with id: ${id}`);
+  const handleAddOrEdit = () => {
+    if (selectedSiteId) {
+      // Édition
+      updateSiteMutation.mutate({
+        ...formData,
+        id: selectedSiteId,
+        lastUpdate: new Date().toISOString().split('T')[0]
+      } as Site);
+    } else {
+      // Ajout
+      createSiteMutation.mutate(formData as Omit<Site, 'id' | 'lastUpdate'>);
+    }
   };
+
+  const handleEdit = (site: Site) => {
+    setFormData(site);
+    setSelectedSiteId(site.id);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    setSelectedSiteId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedSiteId) {
+      deleteSiteMutation.mutate(selectedSiteId);
+    }
+  };
+
+  const handleExportToExcel = () => {
+    exportToExcelMutation.mutate();
+  };
+
+  const handleImportFromExcel = (file: File) => {
+    importFromExcelMutation.mutate(file);
+  };
+
+  const filteredSites = sites.filter(site => 
+    site.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    site.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    site.ipAddress.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    site.manager.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Sites</h1>
-        
-        <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Ajouter un site
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[900px]">
-            <DialogHeader>
-              <DialogTitle>Ajouter un nouveau site</DialogTitle>
-              <DialogDescription>
-                Créez un nouveau site en saisissant les informations manuellement ou en important un fichier Excel.
-              </DialogDescription>
-            </DialogHeader>
-            <LocationCreator />
-          </DialogContent>
-        </Dialog>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Gestion des Sites</h1>
+        <div className="flex gap-2">
+          <Button 
+            className="bg-app-blue hover:bg-app-lightBlue"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" /> Ajouter un site
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleExportToExcel}
+            disabled={exportToExcelMutation.isPending}
+          >
+            <Download className="h-4 w-4 mr-2" /> Exporter
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => setIsImportDialogOpen(true)}
+          >
+            <Upload className="h-4 w-4 mr-2" /> Importer
+          </Button>
+        </div>
       </div>
 
-      <Tabs defaultValue="list" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="list">Liste des sites</TabsTrigger>
-          <TabsTrigger value="map">Carte des sites</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="list">
-          <SitesList 
-            sites={mockSites} 
-            onEdit={handleEditSite} 
-            onDelete={handleDeleteSite} 
+      <div>
+        <div className="mb-4">
+          <Input
+            placeholder="Rechercher un site..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-md"
           />
-        </TabsContent>
-        
-        <TabsContent value="map">
-          <div className="border rounded-lg p-8 h-[600px] flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Visualisation cartographique</h3>
-              <p className="text-muted-foreground mb-4 max-w-md">
-                Visualisez tous vos sites sur une carte interactive. Cliquez sur un marqueur pour voir les détails du site.
-              </p>
-              <Button variant="outline">Charger la carte</Button>
+        </div>
+
+        {isLoading ? (
+          <div className="text-center py-10">Chargement des sites...</div>
+        ) : (
+          <SitesList 
+            sites={filteredSites} 
+            onEdit={handleEdit} 
+            onDelete={handleDelete} 
+          />
+        )}
+      </div>
+
+      {/* Dialog pour ajouter ou modifier un site */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedSiteId ? 'Modifier le site' : 'Ajouter un nouveau site'}</DialogTitle>
+            <DialogDescription>
+              {selectedSiteId 
+                ? 'Modifiez les détails du site existant.' 
+                : 'Remplissez les informations pour ajouter un nouveau site.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Nom
+              </Label>
+              <Input
+                id="name"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="location" className="text-right">
+                Emplacement
+              </Label>
+              <Input
+                id="location"
+                value={formData.location || ''}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Statut
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => setFormData({ ...formData, status: value })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Sélectionner un statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Actif">Actif</SelectItem>
+                  <SelectItem value="En maintenance">En maintenance</SelectItem>
+                  <SelectItem value="Inactif">Inactif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="ipAddress" className="text-right">
+                Adresse IP
+              </Label>
+              <Input
+                id="ipAddress"
+                value={formData.ipAddress || ''}
+                onChange={(e) => setFormData({ ...formData, ipAddress: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="manager" className="text-right">
+                Responsable
+              </Label>
+              <Input
+                id="manager"
+                value={formData.manager || ''}
+                onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+                className="col-span-3"
+              />
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+          <DialogFooter>
+            <Button variant="outline" onClick={resetFormAndCloseDialog}>
+              Annuler
+            </Button>
+            <Button 
+              className="bg-app-blue hover:bg-app-lightBlue"
+              onClick={handleAddOrEdit}
+              disabled={createSiteMutation.isPending || updateSiteMutation.isPending}
+            >
+              {selectedSiteId ? 'Mettre à jour' : 'Ajouter'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmation pour la suppression */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce site?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action ne peut pas être annulée. Cela supprimera définitivement le site
+              de la base de données.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-700">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog pour l'importation de fichier Excel */}
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Importer des sites depuis Excel</DialogTitle>
+            <DialogDescription>
+              Téléchargez un fichier Excel contenant les données des sites à importer.
+            </DialogDescription>
+          </DialogHeader>
+          <FileUploader
+            title="Importer des sites"
+            description="Formats acceptés: .xlsx, .xls"
+            acceptedFileTypes=".xlsx,.xls"
+            onFileUpload={handleImportFromExcel}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

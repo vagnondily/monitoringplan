@@ -1,11 +1,14 @@
 
-import { Navigate } from 'react-router-dom';
-import { useAppContext } from '@/context/AppContext';
+import React from 'react';
+import Dashboard from './Dashboard';
+import AppLayout from '@/components/layout/AppLayout';
 
 const Index = () => {
-  const { isAuthenticated } = useAppContext();
-  
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+  return (
+    <AppLayout>
+      <Dashboard />
+    </AppLayout>
+  );
 };
 
 export default Index;

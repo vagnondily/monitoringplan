@@ -1,173 +1,144 @@
 
 import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
-import Parameters from '@/components/settings/Parameters';
-import OdkDecryptionManager from '@/components/settings/OdkDecryptionManager';
-import OverarchingParameters from '@/components/settings/OverarchingParameters';
-import UsersManagementSettings from '@/components/settings/UsersManagementSettings';
-import { useAppContext } from '@/context/AppContext';
-import { Check, MoonIcon, SunIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { settingsService } from '@/services/dataService';
+import { ConfigSetting } from '@/types';
+import { toast } from 'sonner';
 
 const Settings = () => {
-  const { isDarkMode, toggleDarkMode, language, setLanguage, user } = useAppContext();
-  const [activeTab, setActiveTab] = useState('general');
-  const appVersion = "1.0.0";
+  const queryClient = useQueryClient();
+  const [editedSettings, setEditedSettings] = useState<Record<string, ConfigSetting>>({});
 
-  // Check if user is admin to allow users management
-  const isAdmin = user?.role === 'administrator' || user?.role === 'super_user';
+  const { data: settings = [] } = useQuery<ConfigSetting[]>({
+    queryKey: ['settings'],
+    queryFn: settingsService.getSettings
+  });
+
+  const updateSettingMutation = useMutation({
+    mutationFn: (setting: ConfigSetting) => settingsService.updateSetting(setting),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      toast.success('Paramètres mis à jour avec succès');
+      setEditedSettings({});
+    }
+  });
+
+  const handleSettingChange = (setting: ConfigSetting, value: string) => {
+    setEditedSettings({
+      ...editedSettings,
+      [setting.id]: {
+        ...setting,
+        value
+      }
+    });
+  };
+
+  const saveSettings = () => {
+    const updates = Object.values(editedSettings);
+    if (updates.length === 0) {
+      toast.info('Aucune modification à enregistrer');
+      return;
+    }
+
+    // Mettre à jour chaque paramètre modifié
+    updates.forEach(setting => {
+      updateSettingMutation.mutate(setting);
+    });
+  };
+
+  // Regrouper les paramètres par catégorie
+  const settingsByCategory = settings.reduce<Record<string, ConfigSetting[]>>((acc, setting) => {
+    if (!acc[setting.category]) {
+      acc[setting.category] = [];
+    }
+    acc[setting.category].push(setting);
+    return acc;
+  }, {});
+
+  const categories = Object.keys(settingsByCategory);
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Paramètres</h1>
-        <p className="text-muted-foreground">
-          Configurez les paramètres de l'application et vos préférences personnelles.
-        </p>
+        <Button 
+          className="bg-app-blue hover:bg-app-lightBlue"
+          onClick={saveSettings}
+          disabled={Object.keys(editedSettings).length === 0 || updateSettingMutation.isPending}
+        >
+          Enregistrer les modifications
+        </Button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue={categories[0] || "Général"}>
         <TabsList className="mb-4">
-          <TabsTrigger value="general">Général</TabsTrigger>
-          <TabsTrigger value="parameters">Paramètres système</TabsTrigger>
-          <TabsTrigger value="overarching">Paramètres généraux</TabsTrigger>
-          <TabsTrigger value="odkDecryption">Décryptage ODK</TabsTrigger>
-          {isAdmin && <TabsTrigger value="users">Utilisateurs</TabsTrigger>}
-          <TabsTrigger value="about">À propos</TabsTrigger>
+          {categories.map(category => (
+            <TabsTrigger key={category} value={category}>
+              {category}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="general">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Préférences d'interface</h2>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="darkMode">Mode sombre</Label>
-                  <p className="text-sm text-muted-foreground">Activer le thème sombre pour l'interface</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <SunIcon className="h-4 w-4 text-muted-foreground" />
-                  <Switch 
-                    id="darkMode" 
-                    checked={isDarkMode}
-                    onCheckedChange={toggleDarkMode}
-                  />
-                  <MoonIcon className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </div>
-              
-              <div className="border-t pt-6">
-                <Label htmlFor="language" className="mb-2 block">Langue</Label>
-                <RadioGroup 
-                  id="language" 
-                  value={language}
-                  onValueChange={(value) => setLanguage(value as 'en' | 'fr')}
-                  className="flex space-x-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="fr" id="lang-fr" />
-                    <Label htmlFor="lang-fr">Français</Label>
+        {categories.map(category => (
+          <TabsContent key={category} value={category}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Paramètres {category}</CardTitle>
+                <CardDescription>
+                  Configurez les paramètres relatifs à {category.toLowerCase()}.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {settingsByCategory[category].map(setting => (
+                  <div key={setting.id} className="grid grid-cols-4 items-start gap-4">
+                    <div className="space-y-1">
+                      <Label htmlFor={`setting-${setting.id}`}>{setting.name}</Label>
+                      <p className="text-sm text-gray-500">{setting.description}</p>
+                    </div>
+                    <div className="col-span-3">
+                      <Input
+                        id={`setting-${setting.id}`}
+                        value={editedSettings[setting.id]?.value ?? setting.value}
+                        onChange={(e) => handleSettingChange(setting, e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="en" id="lang-en" />
-                    <Label htmlFor="lang-en">English</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-medium mb-2">Notifications</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="emailNotifications" className="cursor-pointer">Notifications par e-mail</Label>
-                    <Switch id="emailNotifications" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="appNotifications" className="cursor-pointer">Notifications dans l'application</Label>
-                    <Switch id="appNotifications" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="reportNotifications" className="cursor-pointer">Rapports hebdomadaires</Label>
-                    <Switch id="reportNotifications" defaultChecked />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="parameters">
-          <Parameters />
-        </TabsContent>
-
-        <TabsContent value="overarching">
-          <OverarchingParameters />
-        </TabsContent>
-
-        <TabsContent value="odkDecryption">
-          <OdkDecryptionManager />
-        </TabsContent>
-        
-        {isAdmin && (
-          <TabsContent value="users">
-            <UsersManagementSettings />
+                ))}
+              </CardContent>
+            </Card>
           </TabsContent>
-        )}
-        
-        <TabsContent value="about">
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">À propos de l'application</h2>
-            
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-2">Système de Suivi et d'Évaluation</h3>
-                <p className="text-muted-foreground">
-                  Application de gestion des activités de suivi et d'évaluation pour les programmes humanitaires.
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Version</h4>
-                  <p>{appVersion}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Date de déploiement</h4>
-                  <p>9 Avril 2025</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Environnement</h4>
-                  <p>Production</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground">Serveur</h4>
-                  <p>Windows Server 2022</p>
-                </div>
-              </div>
-              
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-2">Support technique</h3>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Pour toute assistance ou signalement de bug, contactez l'équipe technique :
-                </p>
-                <p className="text-sm">support@example.com</p>
-              </div>
-              
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-2">Licences</h3>
-                <p className="text-sm text-muted-foreground">
-                  © 2025 Tous droits réservés. Cette application est concédée sous une licence propriétaire.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
+        ))}
       </Tabs>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>À propos de l'application</CardTitle>
+          <CardDescription>
+            Informations sur l'application SiteSync Insight
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div>
+            <p><strong>Version:</strong> 1.0.0</p>
+            <p><strong>Dernière mise à jour:</strong> {new Date().toLocaleDateString()}</p>
+            <p className="mt-4 text-sm text-gray-500">
+              SiteSync Insight est un outil de gestion de suivi des sites et de gestion de projet.
+              Ce logiciel permet l'intégration avec ONA et Foundry pour une synchronisation complète des données.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
