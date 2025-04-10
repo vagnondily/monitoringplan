@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { parametersService } from '@/services/parametersService';
 import OverarchingParameters from '@/components/settings/OverarchingParameters';
@@ -75,19 +75,156 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-4">
+        <TabsContent value="users" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-app-blue" />
-                Utilisateurs et permissions
-              </CardTitle>
+              <CardTitle>Gestion des utilisateurs</CardTitle>
               <CardDescription>
-                Gérez les utilisateurs et leurs permissions
+                Gérer les comptes utilisateurs et les autorisations
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Paramètres des utilisateurs à implémenter</p>
+              <div className="space-y-6">
+                <div className="flex justify-end">
+                  <Button onClick={() => {
+                    toast({
+                      title: "Ajouter un utilisateur",
+                      description: "Fonction d'ajout d'utilisateur à implémenter",
+                    });
+                  }}>Ajouter un utilisateur</Button>
+                </div>
+                
+                <div className="border rounded-md divide-y">
+                  {/* User 1 */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="font-medium">Jean Dupont</p>
+                        <p className="text-sm text-muted-foreground">Coordinateur de suivi</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          toast({
+                            title: "Éditer l'utilisateur",
+                            description: "Édition de Jean Dupont",
+                          });
+                        }}>Éditer</Button>
+                        <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => {
+                          toast({
+                            title: "Confirmation requise",
+                            description: "Voulez-vous vraiment supprimer cet utilisateur?",
+                            variant: "destructive",
+                          });
+                        }}>Supprimer</Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Email:</span>
+                        <span>jean.dupont@example.com</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Bureau:</span>
+                        <span>Antananarivo</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rôle:</span>
+                        <span className="font-medium">Administrateur</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Statut:</span>
+                        <span className="font-medium text-green-600">Actif</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* User 2 */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="font-medium">Marie Laurent</p>
+                        <p className="text-sm text-muted-foreground">Responsable terrain</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          toast({
+                            title: "Éditer l'utilisateur",
+                            description: "Édition de Marie Laurent",
+                          });
+                        }}>Éditer</Button>
+                        <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => {
+                          toast({
+                            title: "Confirmation requise",
+                            description: "Voulez-vous vraiment supprimer cet utilisateur?",
+                            variant: "destructive",
+                          });
+                        }}>Supprimer</Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Email:</span>
+                        <span>marie.laurent@example.com</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Bureau:</span>
+                        <span>Toamasina</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rôle:</span>
+                        <span className="font-medium">Editor</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Statut:</span>
+                        <span className="font-medium text-green-600">Actif</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* User 3 */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="font-medium">Pierre Martin</p>
+                        <p className="text-sm text-muted-foreground">Analyste de données</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => {
+                          toast({
+                            title: "Éditer l'utilisateur",
+                            description: "Édition de Pierre Martin",
+                          });
+                        }}>Éditer</Button>
+                        <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => {
+                          toast({
+                            title: "Confirmation requise",
+                            description: "Voulez-vous vraiment supprimer cet utilisateur?",
+                            variant: "destructive",
+                          });
+                        }}>Supprimer</Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Email:</span>
+                        <span>pierre.martin@example.com</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Bureau:</span>
+                        <span>Antananarivo</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Rôle:</span>
+                        <span className="font-medium">Validator</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Statut:</span>
+                        <span className="font-medium text-amber-600">En congé</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

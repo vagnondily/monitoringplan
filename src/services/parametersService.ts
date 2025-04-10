@@ -8,14 +8,14 @@ const mockOverarchingParameters: OverarchingParameter[] = [
     cspActivityNumber: 'CSP-MDG-2023-001',
     fieldOffice: 'RBJ Madagascar, Toliara Sub Office',
     activityCategory: 'Malnutrition prevention activities',
-    operationDuration: 12,
-    numberOfSites: 125,
+    operationDuration: 6,
+    numberOfSites: 101,
     riskLevel: 2,
-    minimumRequiredInterval: 6, // operationDuration / riskLevel
-    targetedNumberOfSites: 21, // numberOfSites / minimumRequiredInterval
-    feasibleNumberOfSites: 18,
-    adjustedRequiredInterval: 8, // calculé dynamiquement
-    feasibilityRatio: 0.86 // feasibleNumberOfSites / targetedNumberOfSites
+    minimumRequiredInterval: 3, // operationDuration / riskLevel
+    targetedNumberOfSites: 34, // numberOfSites / minimumRequiredInterval
+    feasibleNumberOfSites: 12,
+    adjustedRequiredInterval: 8.42, // calculé dynamiquement
+    feasibilityRatio: 0.36 // feasibleNumberOfSites / targetedNumberOfSites
   },
   {
     id: '2',
@@ -46,6 +46,14 @@ const mockOverarchingParameters: OverarchingParameter[] = [
     feasibilityRatio: 0.77 // feasibleNumberOfSites / targetedNumberOfSites
   }
 ];
+  // Service pour gérer les Bureaux
+  export const FIELD_OFFICES = [
+    "Antananarivo",
+    "Toamasina",
+    "Mahajanga",
+    "Fianarantsoa",
+    "Toliara"
+  ];
 
 // Liste des catégories d'activités disponibles
 export const activityCategories = [
@@ -74,6 +82,7 @@ export const parametersService = {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(activityCategories);
+        resolve(FIELD_OFFICES)
       }, 300);
     });
   },
@@ -87,7 +96,7 @@ export const parametersService = {
     }
 
     // Calcul du minimum required interval: Operation duration / Risk level
-    const minimumRequiredInterval = Math.max(1, Math.floor(operationDuration / (riskLevel || 1)));
+    const minimumRequiredInterval = Math.max(1, Math.ceil(operationDuration / (riskLevel || 1)));
     
     // Targeted number of sites to visit (per month) = number of sites / minimum required interval
     const targetedNumberOfSites = Math.ceil(numberOfSites / minimumRequiredInterval);
@@ -102,11 +111,11 @@ export const parametersService = {
     
     // Minimum required frequency of visits during the duration = operation duration / minimumRequiredInterval
     const minimumRequiredFrequency = minimumRequiredInterval > 0 
-      ? Math.floor(operationDuration / minimumRequiredInterval)
+      ? Math.ceil(operationDuration / minimumRequiredInterval)
       : 0;
     
     // CO adjusted required frequency = Minimum required frequency * feasibility ratio
-    const adjustedRequiredFrequency = Math.floor(minimumRequiredFrequency * feasibilityRatio);
+    const adjustedRequiredFrequency = Math.ceil(minimumRequiredFrequency * feasibilityRatio);
     
     // CO adjusted required interval (in months)
     let adjustedRequiredInterval = 1;

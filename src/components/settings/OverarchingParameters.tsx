@@ -172,7 +172,7 @@ const OverarchingParameters = () => {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Paramètres généraux de suivi</h2>
         <Button 
@@ -281,8 +281,8 @@ const OverarchingParameters = () => {
                     <TableCell>{parameter.adjustedRequiredInterval}</TableCell>
                     <TableCell>
                       <div className={`px-2 py-1 rounded-full text-center text-xs font-medium ${
-                        parameter.feasibilityRatio >= 0.9 ? 'bg-green-100 text-green-800' :
-                        parameter.feasibilityRatio >= 0.7 ? 'bg-yellow-100 text-yellow-800' :
+                        parameter.feasibilityRatio >= 0.8 ? 'bg-green-100 text-green-800' :
+                        parameter.feasibilityRatio >= 0.6 ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
                         {(parameter.feasibilityRatio * 100).toFixed(0)}%
@@ -308,7 +308,7 @@ const OverarchingParameters = () => {
 
       {/* Dialog pour ajouter ou modifier un paramètre */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{selectedParameterId ? 'Modifier le paramètre' : 'Ajouter un nouveau paramètre'}</DialogTitle>
             <DialogDescription>
@@ -318,7 +318,7 @@ const OverarchingParameters = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="cspActivityNumber" className="text-right">
                 CSP Activity Number
               </Label>
@@ -330,7 +330,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="fieldOffice" className="text-right">
                 Field Office
               </Label>
@@ -342,7 +342,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="activityCategory" className="text-right">
                 Activity Category
               </Label>
@@ -363,7 +363,7 @@ const OverarchingParameters = () => {
               </Select>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="operationDuration" className="text-right">
                 Operation Duration
               </Label>
@@ -380,7 +380,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="numberOfSites" className="text-right">
                 Number of Sites
               </Label>
@@ -394,7 +394,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="riskLevel" className="text-right">
                 Risk Level
               </Label>
@@ -414,7 +414,7 @@ const OverarchingParameters = () => {
             </div>
             
             {/* Cette section affiche les valeurs calculées */}
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Min. Required Interval
               </Label>
@@ -426,7 +426,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Target Sites/Month
               </Label>
@@ -438,7 +438,7 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label htmlFor="feasibleNumberOfSites" className="text-right">
                 Feasible Sites/Month
               </Label>
@@ -452,7 +452,7 @@ const OverarchingParameters = () => {
               />
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Adjusted Interval
               </Label>
@@ -464,14 +464,14 @@ const OverarchingParameters = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
               <Label className="text-right font-semibold">
                 Feasibility Ratio
               </Label>
               <div className="col-span-3 flex items-center">
                 <span className={`px-3 py-2 border rounded-md w-full ${
-                  formData.feasibilityRatio >= 0.9 ? 'bg-green-50 text-green-700' :
-                  formData.feasibilityRatio >= 0.7 ? 'bg-yellow-50 text-yellow-700' :
+                  formData.feasibilityRatio >= 0.8 ? 'bg-green-50 text-green-700' :
+                  formData.feasibilityRatio >= 0.6 ? 'bg-yellow-50 text-yellow-700' :
                   'bg-red-50 text-red-700'
                 }`}>
                   {formData.feasibilityRatio ? `${(formData.feasibilityRatio * 100).toFixed(0)}%` : '0%'}
