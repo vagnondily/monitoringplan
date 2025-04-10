@@ -24,9 +24,11 @@ const renderApp = () => {
     
     // Render the app with proper context providers
     root.render(
-      <AppProvider>
-        <App />
-      </AppProvider>
+      <React.StrictMode>
+        <AppProvider>
+          <App />
+        </AppProvider>
+      </React.StrictMode>
     );
 
     // Register service worker for offline capabilities
