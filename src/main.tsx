@@ -6,6 +6,11 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
+// Initialize React correctly and ensure it's available globally
+if (!window.React) {
+  window.React = React;
+}
+
 // Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   const rootElement = document.getElementById('root');

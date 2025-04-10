@@ -7,16 +7,14 @@ type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
-    <ThemeProvider>
-      <SonnerWithTheme {...props} />
-    </ThemeProvider>
+    <SonnerWithTheme {...props} />
   );
 };
 
 // Separate component that uses useTheme after ThemeProvider is available
 const SonnerWithTheme = (props: ToasterProps) => {
-  // Set a default theme as a fallback
-  const [theme] = React.useState("system");
+  // Using a default theme value directly instead of state
+  const theme = "system";
 
   return (
     <Sonner
