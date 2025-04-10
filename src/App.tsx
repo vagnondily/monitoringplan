@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,7 +24,6 @@ import ReportTemplate from "./pages/ReportTemplate";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Login from "@/pages/auth/Login";
 import { useAppContext } from "@/context/AppContext";
-import Index from "@/pages/Index";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -60,6 +58,8 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
+  const { isAuthenticated } = useAppContext();
+  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="app-theme">
@@ -68,14 +68,18 @@ const App = () => {
             <Toaster />
             <Sonner />
             <Routes>
-              {/* Root route redirects to dashboard or login */}
-              <Route path="/" element={<Index />} />
-              
               {/* Auth routes */}
               <Route path="/login" element={
                 <AuthRoute>
                   <Login />
                 </AuthRoute>
+              } />
+              
+              {/* Root route redirects to dashboard or login */}
+              <Route path="/" element={
+                isAuthenticated ? 
+                  <Navigate to="/dashboard" replace /> : 
+                  <Navigate to="/login" replace />
               } />
               
               {/* Protected routes */}
