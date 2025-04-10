@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userService } from '@/services/userService';
 import { Button } from '@/components/ui/button';
@@ -56,11 +55,11 @@ const FIELD_OFFICES = [
 ];
 
 const UsersManagementSettings = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [currentTab, setCurrentTab] = useState('all');
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [isAddUserOpen, setIsAddUserOpen] = React.useState(false);
+  const [isEditUserOpen, setIsEditUserOpen] = React.useState(false);
+  const [selectedUser, setSelectedUser] = React.useState<any>(null);
+  const [currentTab, setCurrentTab] = React.useState('all');
 
   const queryClient = useQueryClient();
 
@@ -108,7 +107,6 @@ const UsersManagementSettings = () => {
     setIsEditUserOpen(true);
   };
 
-  // Filter users by search term and active state
   const filteredUsers = users.filter((user: any) => {
     const matchesSearch = 
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||

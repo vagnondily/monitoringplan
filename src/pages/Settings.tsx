@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import Parameters from '@/components/settings/Parameters';
@@ -15,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode, language, setLanguage, user } = useAppContext();
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = React.useState('general');
   const appVersion = "1.0.0";
 
   // Check if user is admin to allow users management
