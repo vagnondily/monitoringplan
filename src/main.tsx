@@ -6,21 +6,31 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Create a root element safely
-const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Root element not found');
+// Ensure the DOM is fully loaded before continuing
+document.addEventListener('DOMContentLoaded', () => {
+  // Create a root element safely
+  const rootElement = document.getElementById('root');
+  if (!rootElement) {
+    console.error('Root element not found');
+    return;
+  }
 
-// Use createRoot API
-const root = ReactDOM.createRoot(rootElement);
+  try {
+    // Use createRoot API
+    const root = ReactDOM.createRoot(rootElement);
 
-// Render the app with React.StrictMode
-root.render(
-  <React.StrictMode>
-    <AppProvider>
-      <App />
-    </AppProvider>
-  </React.StrictMode>,
-);
+    // Render the app with React.StrictMode
+    root.render(
+      <React.StrictMode>
+        <AppProvider>
+          <App />
+        </AppProvider>
+      </React.StrictMode>,
+    );
 
-// Register service worker for offline capabilities
-serviceWorker.register();
+    // Register service worker for offline capabilities
+    serviceWorker.register();
+  } catch (error) {
+    console.error('Error initializing the application:', error);
+  }
+});
