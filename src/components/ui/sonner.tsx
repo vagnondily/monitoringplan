@@ -4,12 +4,16 @@ import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = React.forwardRef<
+  React.ElementRef<typeof Sonner>,
+  ToasterProps
+>(({ ...props }, ref) => {
   // Set theme directly without using hooks
   const theme = "system";
 
   return (
     <Sonner
+      ref={ref}
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       toastOptions={{
@@ -26,6 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       {...props}
     />
   );
-};
+});
+Toaster.displayName = "Toaster";
 
 export { Toaster };
