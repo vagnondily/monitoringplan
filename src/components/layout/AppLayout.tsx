@@ -5,6 +5,7 @@ import AppSidebar from './AppSidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -39,14 +40,16 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </Button>
         )}
         
-        {/* Sidebar */}
-        <div className={`
-          ${isMobile ? 'fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-200 ease-in-out' : 'w-64'} 
-          ${isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}
-          bg-app-blue text-white
-        `}>
-          <AppSidebar />
-        </div>
+        {/* Sidebar with SidebarProvider */}
+        <SidebarProvider defaultOpen={!isMobile}>
+          <div className={`
+            ${isMobile ? 'fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-200 ease-in-out' : 'w-64'} 
+            ${isMobile && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+            bg-app-blue text-white
+          `}>
+            <AppSidebar />
+          </div>
+        </SidebarProvider>
         
         {/* Main content */}
         <main className={`flex-1 overflow-auto transition-all duration-200 ease-in-out ${isMobile ? 'w-full' : 'ml-0'}`}>
