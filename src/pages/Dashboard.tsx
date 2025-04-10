@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,7 +23,7 @@ import { Progress } from '@/components/ui/progress';
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 const Dashboard = () => {
-  const [period, setPeriod] = useState('month');
+  const [period, setPeriod] = React.useState('month');
   
   const { data: sites = [], isLoading: sitesLoading } = useQuery<Site[]>({
     queryKey: ['sites'],
