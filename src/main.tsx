@@ -6,13 +6,13 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Make sure React is properly defined globally
-if (typeof window !== 'undefined' && !window.React) {
+// Define a global React to ensure it's available
+if (typeof window !== 'undefined') {
   window.React = React;
 }
 
-// Ensure DOM is fully loaded before mounting React
-const mountApp = () => {
+// Wait for DOM content to be loaded
+const renderApp = () => {
   const rootElement = document.getElementById('root');
   
   if (!rootElement) {
@@ -21,10 +21,10 @@ const mountApp = () => {
   }
 
   try {
-    // Create the root with React 18's createRoot API
+    // Create the root using React 18's createRoot API
     const root = ReactDOM.createRoot(rootElement);
     
-    // Render the app with proper React context
+    // Render the app with proper context providers
     root.render(
       <React.StrictMode>
         <AppProvider>
@@ -33,17 +33,17 @@ const mountApp = () => {
       </React.StrictMode>
     );
 
-    // Register service worker
+    // Register service worker for offline capabilities
     serviceWorker.register();
   } catch (error) {
     console.error('Error rendering the application:', error);
   }
 };
 
-// Use DOMContentLoaded for initial load
+// Check if the DOM is already loaded
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApp);
+  document.addEventListener('DOMContentLoaded', renderApp);
 } else {
-  // DOM already loaded, mount immediately
-  mountApp();
+  // DOM is already loaded, render immediately
+  renderApp();
 }
