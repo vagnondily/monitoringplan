@@ -23,7 +23,7 @@ import {
   BarChart, 
   FileText, 
   Users, 
-  Tool,
+  Wrench,
   Layers
 } from 'lucide-react';
 
@@ -59,7 +59,7 @@ const AppSidebar = () => {
     {
       title: "Outils",
       path: "/tools",
-      icon: Tool
+      icon: Wrench
     },
     {
       title: "Sites",

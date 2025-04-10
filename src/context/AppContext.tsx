@@ -1,12 +1,14 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+type UserRole = 'super_user' | 'administrator' | 'creator' | 'validator' | 'viewer';
+
 type User = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: 'super_user' | 'administrator' | 'creator' | 'validator' | 'viewer';
+  role: UserRole;
   fieldOffice: string;
   jobTitle: string;
 };

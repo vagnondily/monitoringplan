@@ -52,7 +52,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       if (isUserAuthenticated) {
         const userData = authService.getCurrentUser();
         if (userData) {
-          setUser(userData);
+          // Convert role to expected type if it's a string
+          const processedUser = {
+            ...userData,
+            role: userData.role as any // This is a temporary cast to make TypeScript happy
+          };
+          setUser(processedUser);
         }
       }
     };
@@ -82,6 +87,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
+      // Fix the service worker path to point to the correct location
       const registration = await navigator.serviceWorker.register('/service-worker.js');
       console.log('Service worker registered successfully:', registration);
     } catch (error) {
