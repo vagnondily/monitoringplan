@@ -27,8 +27,18 @@ type AppContextType = {
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  // For testing purposes, let's initialize with a default authenticated user
+  const [user, setUser] = React.useState<User | null>({
+    id: 'currentUser',
+    firstName: 'Admin',
+    lastName: 'User',
+    email: 'admin@mems.org',
+    role: 'administrator',
+    fieldOffice: 'Siège',
+    jobTitle: 'System Administrator'
+  });
+  
+  const [isAuthenticated, setIsAuthenticated] = React.useState(true); // Set to true for testing
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [language, setLanguage] = React.useState<'en' | 'fr'>('en');
