@@ -1,11 +1,13 @@
 
+"use client";
+
 import * as React from "react";
 import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  // Set theme directly without using hooks
+const Toaster = (props: ToasterProps) => {
+  // Use a simple string without hooks
   const theme = "system";
 
   return (
@@ -27,6 +29,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
     />
   );
 };
+
 Toaster.displayName = "Toaster";
 
 export { Toaster };

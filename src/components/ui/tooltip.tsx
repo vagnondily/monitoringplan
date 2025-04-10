@@ -1,17 +1,14 @@
 
+"use client";
+
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/lib/utils";
 
-// Create a proper function component for TooltipProvider
-const TooltipProvider = ({
-  children,
-  ...props
-}: TooltipPrimitive.TooltipProviderProps) => {
-  return <TooltipPrimitive.Provider {...props}>{children}</TooltipPrimitive.Provider>;
-};
-TooltipProvider.displayName = TooltipPrimitive.Provider.displayName;
+const TooltipProvider = ({ children, ...props }: TooltipPrimitive.TooltipProviderProps) => (
+  <TooltipPrimitive.Provider {...props}>{children}</TooltipPrimitive.Provider>
+);
 
 const Tooltip = TooltipPrimitive.Root;
 
@@ -32,5 +29,6 @@ const TooltipContent = React.forwardRef<
   />
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+TooltipProvider.displayName = TooltipPrimitive.Provider.displayName;
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

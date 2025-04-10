@@ -6,12 +6,10 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Define a global React to ensure it's available
-if (typeof window !== 'undefined') {
-  window.React = React;
-}
+// Ensure React is properly available in the global scope
+window.React = React;
 
-// Wait for DOM content to be loaded
+// Define a function to render the application
 const renderApp = () => {
   const rootElement = document.getElementById('root');
   
