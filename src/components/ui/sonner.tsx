@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "sonner";
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  // Use constant theme value to avoid hooks during initialization
+  // Set theme directly without using hooks
   const theme = "system";
 
   return (

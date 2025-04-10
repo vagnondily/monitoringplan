@@ -6,13 +6,8 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Initialize React correctly
-if (!window.React) {
-  window.React = React;
-}
-
-// Ensure DOM is ready before mounting React
-const mountApp = () => {
+// Ensure DOM is fully loaded before mounting React
+document.addEventListener('DOMContentLoaded', () => {
   const rootElement = document.getElementById('root');
   
   if (!rootElement) {
@@ -38,12 +33,4 @@ const mountApp = () => {
   } catch (error) {
     console.error('Error rendering the application:', error);
   }
-};
-
-// Use DOMContentLoaded for initial load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApp);
-} else {
-  // DOM already loaded, mount immediately
-  mountApp();
-}
+});
