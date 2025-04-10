@@ -1,5 +1,5 @@
 
-import React from 'react';
+import * as React from 'react';
 
 type UserRole = 'super_user' | 'administrator' | 'creator' | 'validator' | 'viewer';
 

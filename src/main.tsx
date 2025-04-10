@@ -1,13 +1,10 @@
 
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
-
-// Make sure React is properly available globally
-window.React = React;
 
 // Define a function to render the application
 const renderApp = () => {
