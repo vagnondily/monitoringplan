@@ -15,8 +15,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
 // Separate component that uses useTheme after ThemeProvider is available
 const SonnerWithTheme = (props: ToasterProps) => {
-  const [themeState] = React.useState({ theme: "system" });
-  const { theme = "system" } = themeState;
+  // Set a default theme as a fallback
+  const [theme] = React.useState("system");
 
   return (
     <Sonner

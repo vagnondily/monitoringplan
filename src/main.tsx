@@ -6,31 +6,31 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Ensure the DOM is fully loaded before continuing
+// Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // Create a root element safely
   const rootElement = document.getElementById('root');
+  
   if (!rootElement) {
     console.error('Root element not found');
     return;
   }
 
   try {
-    // Use createRoot API
+    // Create the root with React 18's createRoot API
     const root = ReactDOM.createRoot(rootElement);
-
-    // Render the app with React.StrictMode
+    
+    // Render the app with proper React context
     root.render(
       <React.StrictMode>
         <AppProvider>
           <App />
         </AppProvider>
-      </React.StrictMode>,
+      </React.StrictMode>
     );
 
-    // Register service worker for offline capabilities
+    // Register service worker
     serviceWorker.register();
   } catch (error) {
-    console.error('Error initializing the application:', error);
+    console.error('Error rendering the application:', error);
   }
 });

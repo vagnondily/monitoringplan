@@ -2,7 +2,6 @@
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
@@ -109,7 +108,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="light" storageKey="app-theme">
-          <TooltipPrimitive.Provider>
+          <TooltipProvider>
             <Routes>
               {/* Auth routes */}
               <Route path="/login" element={
@@ -160,7 +159,7 @@ const App = () => {
             </Routes>
             <Toaster />
             <Sonner />
-          </TooltipPrimitive.Provider>
+          </TooltipProvider>
         </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
