@@ -12,20 +12,7 @@ import {
   SidebarMenuButton, 
   SidebarHeader 
 } from '@/components/ui/sidebar';
-import { 
-  LayoutDashboard, 
-  ListChecks, 
-  Database, 
-  Settings, 
-  UploadCloud, 
-  Download, 
-  Calendar, 
-  BarChart, 
-  FileText, 
-  Users, 
-  Tool,
-  Layers
-} from 'lucide-react';
+import { LayoutDashboard, ListChecks, DatabaseIcon, Settings, UploadCloud, Download } from 'lucide-react';
 
 const AppSidebar = () => {
   const location = useLocation();
@@ -33,43 +20,28 @@ const AppSidebar = () => {
   const menuItems = [
     {
       title: "Tableau de bord",
-      path: "/dashboard",
+      path: "/",
       icon: LayoutDashboard
-    },
-    {
-      title: "Planning",
-      path: "/planning",
-      icon: Calendar
-    },
-    {
-      title: "Données actuelles",
-      path: "/actual-data",
-      icon: BarChart
-    },
-    {
-      title: "Configuration des données",
-      path: "/data-config",
-      icon: Database
-    },
-    {
-      title: "Rapports",
-      path: "/reports",
-      icon: FileText
-    },
-    {
-      title: "Outils",
-      path: "/tools",
-      icon: Tool
     },
     {
       title: "Sites",
       path: "/sites",
-      icon: Layers
+      icon: ListChecks
     },
     {
-      title: "Utilisateurs",
-      path: "/users",
-      icon: Users
+      title: "Projets",
+      path: "/projects",
+      icon: DatabaseIcon
+    },
+    {
+      title: "Importer",
+      path: "/import",
+      icon: UploadCloud
+    },
+    {
+      title: "Exporter",
+      path: "/export",
+      icon: Download
     },
     {
       title: "Paramètres",
@@ -82,7 +54,7 @@ const AppSidebar = () => {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center px-4 py-2">
-          <span className="text-lg font-semibold text-white">MEMS</span>
+          <span className="text-lg font-semibold text-app-blue">SiteSync Insight</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -91,7 +63,7 @@ const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
-                const isActive = location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
+                const isActive = location.pathname === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton asChild className={isActive ? "bg-app-gray text-app-blue" : ""}>

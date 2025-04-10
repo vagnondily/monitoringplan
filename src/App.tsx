@@ -1,5 +1,3 @@
-
-import * as React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,7 +24,6 @@ import ReportTemplate from "./pages/ReportTemplate";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Login from "@/pages/auth/Login";
 import { useAppContext } from "@/context/AppContext";
-import authService from "./services/authService";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -34,31 +31,13 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
     },
   },
 });
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, setIsAuthenticated, setUser } = useAppContext();
-  
-  React.useEffect(() => {
-    // Check authentication status on mount and set user data
-    const checkAuth = () => {
-      const isUserAuthenticated = authService.isAuthenticated();
-      setIsAuthenticated(isUserAuthenticated);
-      
-      if (isUserAuthenticated) {
-        const userData = authService.getCurrentUser();
-        if (userData) {
-          setUser(userData);
-        }
-      }
-    };
-    
-    checkAuth();
-  }, [setIsAuthenticated, setUser]);
+  const { isAuthenticated } = useAppContext();
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -78,25 +57,8 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// The worker registration for offline support
-const registerServiceWorker = async () => {
-  if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register('/service-worker.js');
-      console.log('Service worker registered successfully:', registration);
-    } catch (error) {
-      console.error('Service worker registration failed:', error);
-    }
-  }
-};
-
 const App = () => {
   const { isAuthenticated } = useAppContext();
-  
-  React.useEffect(() => {
-    // Register service worker for offline support
-    registerServiceWorker();
-  }, []);
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -129,25 +91,21 @@ const App = () => {
                 </ProtectedRoute>
               }>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/planning" element={<div>Planning Component</div>} />
                 <Route path="/sites" element={<Sites />} />
                 <Route path="/sites/:id" element={<SiteDetails />} />
                 <Route path="/projects" element={<Projects />} />
-                <Route path="/actual-data" element={<ActualData />} />
-                <Route path="/data-config" element={<div>Data Configuration Component</div>} />
-                <Route path="/reports" element={<div>Reports Component</div>} />
-                <Route path="/tools" element={<div>Tools Component</div>} />
-                <Route path="/tools/workflow" element={<Workflow />} />
-                <Route path="/tools/report-template" element={<ReportTemplate />} />
                 <Route path="/import" element={<Import />} />
                 <Route path="/export" element={<Export />} />
-                <Route path="/users" element={<UsersManagement />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/actual-data" element={<ActualData />} />
                 <Route path="/messaging" element={<Messaging />} />
                 <Route path="/notifications" element={<Notifications />} />
+                <Route path="/workflow" element={<Workflow />} />
                 <Route path="/integrations" element={<Integrations />} />
                 <Route path="/data-sources" element={<DataSources />} />
+                <Route path="/users" element={<UsersManagement />} />
                 <Route path="/map-visualization" element={<MapVisualization />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/report-template" element={<ReportTemplate />} />
               </Route>
               
               {/* Catch all for non-existent routes */}
