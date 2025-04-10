@@ -1,242 +1,349 @@
-
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Download, RefreshCw, Filter, Search } from 'lucide-react';
-import { odkService } from '@/services/odkService';
-import { toast } from 'sonner';
+import { Separator } from '@/components/ui/separator';
+import { FileUp, BarChart, PieChart, Download, RefreshCw } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import FileUploader from '@/components/data/FileUploader';
+import {
+  LineChart, Line, BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart as RePieChart, Pie, Cell
+} from 'recharts';
+
+const activityData = [
+  { month: 'Jan', planned: 45, completed: 38 },
+  { month: 'Feb', planned: 52, completed: 48 },
+  { month: 'Mar', planned: 48, completed: 45 },
+  { month: 'Apr', planned: 56, completed: 51 },
+  { month: 'May', planned: 62, completed: 55 },
+  { month: 'Jun', planned: 58, completed: 49 },
+];
+
+const outcomeData = [
+  { name: 'Food Security', value: 68 },
+  { name: 'Nutrition', value: 72 },
+  { name: 'Resilience', value: 55 },
+  { name: 'Education', value: 83 },
+];
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+const beneficiaryData = [
+  { category: 'Enfants', hommes: 1200, femmes: 1350 },
+  { category: 'Adultes', hommes: 2800, femmes: 3100 },
+  { category: 'Personnes âgées', hommes: 750, femmes: 920 },
+];
 
 const ActualData = () => {
-  const [selectedForm, setSelectedForm] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
-  
-  const { 
-    data: forms = [], 
-    isLoading: formsLoading 
-  } = useQuery({
-    queryKey: ['odk-forms'],
-    queryFn: odkService.getForms
-  });
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [lastUpdate, setLastUpdate] = useState('2025-04-09T08:30:00Z');
 
-  const { 
-    data: formData, 
-    isLoading: dataLoading,
-    refetch
-  } = useQuery({
-    queryKey: ['odk-data', selectedForm],
-    queryFn: () => odkService.getFormData(selectedForm),
-    enabled: !!selectedForm,
-  });
-
-  const handleRefreshData = async () => {
-    try {
-      await refetch();
-      toast.success('Données actualisées avec succès');
-    } catch (error) {
-      toast.error('Erreur lors de l\'actualisation des données');
-    }
+  const handleRefresh = () => {
+    setLastUpdate(new Date().toISOString());
   };
-
-  const handleFormSelection = (value: string) => {
-    setSelectedForm(value);
-    setCurrentPage(1);
-  };
-
-  const handleDownload = () => {
-    if (!formData) return;
-    
-    try {
-      // Create CSV data
-      const headers = Object.keys(formData.data[0] || {}).join(',');
-      const rows = formData.data.map(row => Object.values(row).join(',')).join('\n');
-      const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
-      
-      // Create download link
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `${selectedForm}_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      
-      // Download it
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success('Téléchargement démarré');
-    } catch (error) {
-      toast.error('Erreur lors du téléchargement');
-    }
-  };
-
-  // Filter data based on search query
-  const filteredData = formData?.data.filter(item => {
-    if (!searchQuery) return true;
-    
-    return Object.values(item).some(
-      value => String(value).toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }) || [];
-
-  // Pagination
-  const totalPages = Math.ceil((filteredData.length || 0) / pageSize);
-  const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  
-  // Determine columns dynamically
-  const columns = paginatedData.length > 0 ? Object.keys(paginatedData[0]) : [];
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Données Actuelles (ODK/Ona)</h1>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Données actuelles</h1>
+          <p className="text-muted-foreground">
+            Consultez et analysez les données actuelles des activités de terrain
+          </p>
+        </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleRefreshData} 
-            disabled={dataLoading}
-            className="flex items-center gap-1"
-          >
-            <RefreshCw size={16} />
-            Rafraîchir 
+          <Button variant="outline" onClick={handleRefresh}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Actualiser
           </Button>
-          <Button 
-            onClick={handleDownload} 
-            disabled={!formData || dataLoading}
-            className="bg-app-blue hover:bg-app-lightBlue flex items-center gap-1"
-          >
-            <Download size={16} />
-            Exporter CSV
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Exporter
+          </Button>
+          <Button>
+            <FileUp className="mr-2 h-4 w-4" />
+            Importer des données
           </Button>
         </div>
       </div>
 
+      <div className="grid grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Sites actifs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">187</div>
+            <p className="text-xs text-muted-foreground">
+              +12% depuis le mois dernier
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Activités planifiées</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">62</div>
+            <p className="text-xs text-muted-foreground">
+              Pour le mois en cours
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Activités complétées</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">49</div>
+            <p className="text-xs text-muted-foreground">
+              79% du plan mensuel
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Bénéficiaires atteints</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">24,873</div>
+            <p className="text-xs text-muted-foreground">
+              +5% depuis le mois dernier
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="border-t-4 border-t-blue-500">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Aperçu des données actuelles</CardTitle>
+              <CardDescription>
+                Dernière mise à jour : {new Date(lastUpdate).toLocaleString()}
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="px-3 py-1">
+              Avril 2025
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full grid grid-cols-3 mb-8">
+              <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
+              <TabsTrigger value="activities">Activités</TabsTrigger>
+              <TabsTrigger value="outcomes">Résultats</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="dashboard" className="space-y-8">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Progression des activités</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={activityData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="planned" stroke="#8884d8" name="Activités planifiées" />
+                    <Line type="monotone" dataKey="completed" stroke="#82ca9d" name="Activités complétées" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Résultats par secteur</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RePieChart>
+                      <Pie
+                        data={outcomeData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}%`}
+                      >
+                        {outcomeData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RePieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Bénéficiaires par catégorie</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <ReBarChart data={beneficiaryData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="category" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="hommes" fill="#8884d8" name="Hommes" />
+                      <Bar dataKey="femmes" fill="#82ca9d" name="Femmes" />
+                    </ReBarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="activities">
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  <Card className="bg-blue-50 dark:bg-blue-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Taux d'achèvement</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">79%</div>
+                      <p className="text-xs text-muted-foreground">
+                        Objectif: 85%
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-green-50 dark:bg-green-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Respect du calendrier</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">92%</div>
+                      <p className="text-xs text-muted-foreground">
+                        Objectif: 90%
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-amber-50 dark:bg-amber-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Problèmes signalés</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">7</div>
+                      <p className="text-xs text-muted-foreground">
+                        -3 depuis le mois dernier
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <h3 className="text-lg font-medium mb-4">Activités par région</h3>
+                <div className="h-[400px] border rounded-lg p-4 bg-slate-50 dark:bg-slate-900">
+                  <div className="flex items-center justify-center h-full">
+                    <BarChart className="h-10 w-10 text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">Carte des activités à implémenter</p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="outcomes">
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium mb-4">Indicateurs de résultats</h3>
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <Card className="bg-green-50 dark:bg-green-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Sécurité alimentaire</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">68%</div>
+                      <p className="text-xs text-muted-foreground">
+                        +8% par rapport à la base de référence
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-amber-50 dark:bg-amber-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Nutrition</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">72%</div>
+                      <p className="text-xs text-muted-foreground">
+                        +12% par rapport à la base de référence
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-blue-50 dark:bg-blue-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Résilience</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">55%</div>
+                      <p className="text-xs text-muted-foreground">
+                        +5% par rapport à la base de référence
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-purple-50 dark:bg-purple-950">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Éducation</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">83%</div>
+                      <p className="text-xs text-muted-foreground">
+                        +15% par rapport à la base de référence
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <h3 className="text-lg font-medium mb-4">Analyse des résultats</h3>
+                <div className="border rounded-lg p-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium">Principales réalisations</h4>
+                      <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
+                        <li>Augmentation de 12% de l'accès à la nourriture dans les zones cibles</li>
+                        <li>Réduction de 8% de la malnutrition chez les enfants de moins de 5 ans</li>
+                        <li>Amélioration de 15% des taux de scolarisation dans les communautés cibles</li>
+                        <li>Formation de 1,243 bénéficiaires aux pratiques agricoles améliorées</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium">Défis et contraintes</h4>
+                      <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
+                        <li>Instabilité sécuritaire dans certaines zones d'intervention</li>
+                        <li>Retards dans la livraison des intrants pour certaines activités</li>
+                        <li>Faible participation communautaire dans la région sud</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
-          <CardTitle>Visualisation des données collectées</CardTitle>
+          <CardTitle>Importer des données actuelles</CardTitle>
           <CardDescription>
-            Consultez les données collectées depuis ODK Central ou Ona. Sélectionnez un formulaire pour voir les données.
+            Téléversez des fichiers Excel ou CSV contenant les données actuelles
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="w-full md:w-1/3">
-                <label className="text-sm font-medium">Sélectionner un formulaire</label>
-                <Select 
-                  value={selectedForm} 
-                  onValueChange={handleFormSelection}
-                  disabled={formsLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choisir un formulaire" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {formsLoading ? (
-                      <SelectItem value="loading" disabled>Chargement...</SelectItem>
-                    ) : (
-                      forms.map(form => (
-                        <SelectItem key={form.id} value={form.id}>{form.name}</SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="w-full md:w-2/3">
-                <label className="text-sm font-medium">Rechercher</label>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                  <Input
-                    placeholder="Rechercher dans les données..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8"
-                    disabled={!selectedForm || dataLoading}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {!selectedForm ? (
-              <div className="text-center p-12 border border-dashed rounded-md">
-                <p className="text-gray-500">Veuillez sélectionner un formulaire pour afficher les données</p>
-              </div>
-            ) : dataLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            ) : filteredData.length === 0 ? (
-              <div className="text-center p-12 border border-dashed rounded-md">
-                <p className="text-gray-500">Aucune donnée trouvée pour ce formulaire</p>
-              </div>
-            ) : (
-              <div>
-                <div className="rounded-md border overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {columns.map(column => (
-                            <TableHead key={column}>{column}</TableHead>
-                          ))}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {paginatedData.map((row, index) => (
-                          <TableRow key={index}>
-                            {columns.map(column => (
-                              <TableCell key={`${index}-${column}`}>
-                                {String(row[column] || '')}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-
-                {/* Pagination */}
-                <div className="flex items-center justify-between mt-4">
-                  <div className="text-sm text-gray-500">
-                    Affichage de {Math.min(filteredData.length, 1 + (currentPage - 1) * pageSize)} à {Math.min(filteredData.length, currentPage * pageSize)} sur {filteredData.length} entrées
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                    >
-                      Précédent
-                    </Button>
-                    <div className="text-sm">
-                      Page {currentPage} sur {totalPages || 1}
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages || totalPages === 0}
-                    >
-                      Suivant
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <FileUploader
+            title="Importer des données"
+            description="Formats acceptés: Excel et CSV. Taille maximale: 10 MB."
+            acceptedFileTypes=".xlsx,.xls,.csv"
+            maxSize={10}
+            onFileUpload={(file) => console.log("File uploaded:", file)}
+            templateAvailable={true}
+            onTemplateDownload={() => console.log("Template download requested")}
+          />
         </CardContent>
       </Card>
     </div>

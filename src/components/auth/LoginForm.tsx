@@ -92,12 +92,12 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-lg border-t-4 border-t-accent">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-2xl font-bold text-center text-navy-900 dark:text-white">
+    <Card className="w-full border shadow-sm rounded-md overflow-hidden">
+      <CardHeader className="pb-4 text-center">
+        <CardTitle className="text-2xl font-bold text-[#0A2647]">
           MEMS Login
         </CardTitle>
-        <CardDescription className="text-center">
+        <CardDescription>
           Monitoring & Evaluation Management System
         </CardDescription>
       </CardHeader>
@@ -128,7 +128,7 @@ const LoginForm: React.FC = () => {
               <Label htmlFor="password" className="text-sm font-medium">
                 Password
               </Label>
-              <a href="#" className="text-xs text-accent hover:underline">
+              <a href="#" className="text-xs text-[#2563EB] hover:underline">
                 Forgot password?
               </a>
             </div>
@@ -170,7 +170,7 @@ const LoginForm: React.FC = () => {
 
           <Button 
             type="submit" 
-            className="w-full bg-accent hover:bg-accent/90 transition-colors" 
+            className="w-full bg-[#2563EB] hover:bg-[#1E40AF] transition-colors" 
             disabled={isLoading}
           >
             {isLoading ? 'Logging in...' : 'Login'}

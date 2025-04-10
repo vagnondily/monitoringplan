@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useAppContext } from '@/context/AppContext';
 import {
   Bell,
   MessageSquare,
@@ -47,9 +47,20 @@ import { cn } from '@/lib/utils';
 const AppHeader = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, setUser, setIsAuthenticated } = useAppContext();
 
   const unreadNotifications = 3;
   const unreadMessages = 2;
+
+  const handleLogout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    toast({
+      title: 'Logged out successfully',
+      description: 'You have been logged out of your account',
+    });
+    navigate('/login');
+  };
 
   return (
     <header className="bg-app-blue text-white border-b sticky top-0 z-10 shadow-sm">
@@ -253,7 +264,7 @@ const AppHeader = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>John Doe</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.firstName} {user?.lastName || 'User'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
@@ -273,7 +284,7 @@ const AppHeader = () => {
                 <span>Aide</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => toast({ title: 'Déconnecté' })}>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Déconnexion</span>
               </DropdownMenuItem>
