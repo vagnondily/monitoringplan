@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -26,7 +25,6 @@ import ReportTemplate from "./pages/ReportTemplate";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Login from "@/pages/auth/Login";
 import { useAppContext } from "@/context/AppContext";
-import authService from "./services/authService";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -44,7 +42,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, setIsAuthenticated, setUser } = useAppContext();
   
   React.useEffect(() => {
-    // Check authentication status on mount and set user data
     const checkAuth = () => {
       const isUserAuthenticated = authService.isAuthenticated();
       setIsAuthenticated(isUserAuthenticated);
@@ -52,10 +49,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       if (isUserAuthenticated) {
         const userData = authService.getCurrentUser();
         if (userData) {
-          // Convert role to expected type if it's a string
           const processedUser = {
             ...userData,
-            role: userData.role as any // This is a temporary cast to make TypeScript happy
+            role: userData.role as any
           };
           setUser(processedUser);
         }
@@ -87,7 +83,6 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
-      // Fix the service worker path to point to the correct location
       const registration = await navigator.serviceWorker.register('/service-worker.js');
       console.log('Service worker registered successfully:', registration);
     } catch (error) {
@@ -100,7 +95,6 @@ const App = () => {
   const { isAuthenticated } = useAppContext();
   
   React.useEffect(() => {
-    // Register service worker for offline support
     registerServiceWorker();
   }, []);
   
@@ -110,21 +104,18 @@ const App = () => {
         <ThemeProvider defaultTheme="light" storageKey="app-theme">
           <TooltipProvider>
             <Routes>
-              {/* Auth routes */}
               <Route path="/login" element={
                 <AuthRoute>
                   <Login />
                 </AuthRoute>
               } />
               
-              {/* Root route redirects to dashboard or login */}
               <Route path="/" element={
                 isAuthenticated ? 
                   <Navigate to="/dashboard" replace /> : 
                   <Navigate to="/login" replace />
               } />
               
-              {/* Protected routes */}
               <Route element={
                 <ProtectedRoute>
                   <AppLayout>
@@ -154,7 +145,6 @@ const App = () => {
                 <Route path="/settings" element={<Settings />} />
               </Route>
               
-              {/* Catch all for non-existent routes */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
