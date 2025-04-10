@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,16 +33,16 @@ const Parameters = () => {
             
             <TabsContent value="parameters">
               <div className="space-y-6">
-                <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
-                  <p className="text-sm text-blue-700">
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+                  <p className="text-xs text-blue-600">
                     Cette section permet de configurer les paramètres globaux pour le suivi.
                   </p>
                 </div>
                 
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Paramètres généraux</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">Paramètres généraux</CardTitle>
+                    <CardDescription className="text-sm">
                       Définir les paramètres globaux pour le suivi
                     </CardDescription>
                   </CardHeader>
@@ -89,9 +88,9 @@ const Parameters = () => {
                 </Card>
                 
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Affichage et rapports</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">Affichage et rapports</CardTitle>
+                    <CardDescription className="text-sm">
                       Définir les paramètres pour l'affichage et les rapports
                     </CardDescription>
                   </CardHeader>
@@ -144,16 +143,16 @@ const Parameters = () => {
             
             <TabsContent value="planning">
               <div className="space-y-6">
-                <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
-                  <p className="text-sm text-blue-700">
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+                  <p className="text-xs text-blue-600">
                     Cette section permet de configurer les paramètres initiaux pour le plan de suivi.
                   </p>
                 </div>
                 
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Périodes de planification</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">Périodes de planification</CardTitle>
+                    <CardDescription className="text-sm">
                       Définir la période de référence pour la planification
                     </CardDescription>
                   </CardHeader>
@@ -207,9 +206,9 @@ const Parameters = () => {
                 </Card>
                 
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Critères de priorisation</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">Critères de priorisation</CardTitle>
+                    <CardDescription className="text-sm">
                       Configurer les règles de priorisation des sites
                     </CardDescription>
                   </CardHeader>
@@ -244,9 +243,9 @@ const Parameters = () => {
                 </Card>
                 
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Exigences de visites</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">Exigences de visites</CardTitle>
+                    <CardDescription className="text-sm">
                       Définir les exigences minimales de visites par site
                     </CardDescription>
                   </CardHeader>
