@@ -38,7 +38,7 @@ const renderApp = () => {
   }
 };
 
-// Check if the DOM is already loaded
+// Make sure the DOM is fully loaded before rendering
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderApp);
 } else {

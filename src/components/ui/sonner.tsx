@@ -6,12 +6,16 @@ import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-const Toaster = (props: ToasterProps) => {
+const Toaster = React.forwardRef<
+  React.ElementRef<typeof Sonner>,
+  ToasterProps
+>((props, ref) => {
   // Use a simple string without hooks
   const theme = "system";
 
   return (
     <Sonner
+      ref={ref}
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       toastOptions={{
@@ -28,7 +32,7 @@ const Toaster = (props: ToasterProps) => {
       {...props}
     />
   );
-};
+});
 
 Toaster.displayName = "Toaster";
 

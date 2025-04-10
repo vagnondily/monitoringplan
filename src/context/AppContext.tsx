@@ -37,7 +37,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Check for saved dark mode preference
   React.useEffect(() => {
-    if (typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined') {
       const savedDarkMode = localStorage.getItem('darkMode') === 'true';
       setIsDarkMode(savedDarkMode);
       
