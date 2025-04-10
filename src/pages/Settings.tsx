@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
@@ -18,7 +19,7 @@ const Settings = () => {
   const appVersion = "1.0.0";
 
   // Check if user is admin to allow users management
-  const isAdmin = user?.role === 'administrator' || user?.role === 'super_user';
+  const isAdmin = user?.role === 'administrator' || user?.role === 'super_user' || user?.role === 'admin';
 
   return (
     <div className="space-y-6">

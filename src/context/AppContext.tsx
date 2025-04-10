@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 
-type UserRole = 'admin' | 'user' | 'guest';
+type UserRole = 'admin' | 'user' | 'guest' | 'administrator' | 'super_user' | 'creator' | 'validator' | 'viewer';
 
 type User = {
   id: string;
@@ -20,6 +20,8 @@ type AppContextType = {
   toggleSidebar: () => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+  language: 'en' | 'fr';
+  setLanguage: (language: 'en' | 'fr') => void;
 };
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [language, setLanguage] = React.useState<'en' | 'fr'>('fr');
 
   // Check for saved dark mode preference
   React.useEffect(() => {
@@ -38,6 +41,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       
       if (savedDarkMode && typeof document !== 'undefined') {
         document.documentElement.classList.add('dark');
+      }
+
+      // Check for saved language preference
+      const savedLanguage = localStorage.getItem('language');
+      if (savedLanguage === 'en' || savedLanguage === 'fr') {
+        setLanguage(savedLanguage);
       }
     }
   }, []);
@@ -63,6 +72,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleSetLanguage = (newLanguage: 'en' | 'fr') => {
+    setLanguage(newLanguage);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('language', newLanguage);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -74,6 +90,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         toggleSidebar,
         isDarkMode,
         toggleDarkMode,
+        language,
+        setLanguage: handleSetLanguage,
       }}
     >
       {children}
