@@ -1,12 +1,12 @@
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Ensure React is properly available globally
+// Make sure React is properly available globally
 window.React = React;
 
 // Define a function to render the application
@@ -23,7 +23,6 @@ const renderApp = () => {
     const root = ReactDOM.createRoot(rootElement);
     
     // Render the app with proper context providers
-    // Removing StrictMode for now as it can cause double rendering and potential issues
     root.render(
       <AppProvider>
         <App />
