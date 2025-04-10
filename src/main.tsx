@@ -6,6 +6,9 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
+// Ensure React is properly available in the window context
+window.React = React;
+
 // Define a function to render the application
 const renderApp = () => {
   const rootElement = document.getElementById('root');
