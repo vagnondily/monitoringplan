@@ -37,11 +37,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Check for saved dark mode preference
   React.useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setIsDarkMode(savedDarkMode);
-    
-    if (savedDarkMode) {
-      document.documentElement.classList.add('dark');
+    if (typeof localStorage !== 'undefined') {
+      const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+      setIsDarkMode(savedDarkMode);
+      
+      if (savedDarkMode && typeof document !== 'undefined') {
+        document.documentElement.classList.add('dark');
+      }
     }
   }, []);
 
@@ -52,12 +54,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', String(newDarkMode));
     
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('darkMode', String(newDarkMode));
+    }
+    
+    if (typeof document !== 'undefined') {
+      if (newDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
   };
 

@@ -1,12 +1,20 @@
 
 import * as React from 'react';
-import ReactDOM from 'react-dom/client';
+import * as ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+// Create a root element safely
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Root element not found');
+
+// Use createRoot API
+const root = ReactDOM.createRoot(rootElement);
+
+// Render the app with React.StrictMode
+root.render(
   <React.StrictMode>
     <AppProvider>
       <App />

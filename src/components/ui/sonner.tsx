@@ -1,12 +1,24 @@
 
 import * as React from "react";
-import { useTheme } from "next-themes";
+import { ThemeProvider } from "next-themes";
 import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
+  // Define a default theme to avoid dependency on useTheme
+  const defaultTheme = "system";
+  
+  return (
+    <ThemeProvider>
+      <SonnerWithTheme {...props} />
+    </ThemeProvider>
+  );
+};
+
+// Separate component that uses useTheme after ThemeProvider is available
+const SonnerWithTheme = (props: ToasterProps) => {
+  const { theme = "system" } = React.useState({ theme: "system" })[0];
 
   return (
     <Sonner

@@ -106,11 +106,9 @@ const App = () => {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="app-theme">
-        <TooltipProvider>
-          <BrowserRouter>
-            <Toaster />
-            <Sonner />
+      <BrowserRouter>
+        <ThemeProvider defaultTheme="light" storageKey="app-theme">
+          <TooltipProvider>
             <Routes>
               {/* Auth routes */}
               <Route path="/login" element={
@@ -159,9 +157,11 @@ const App = () => {
               {/* Catch all for non-existent routes */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };

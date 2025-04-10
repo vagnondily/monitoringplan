@@ -28,29 +28,35 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = React.useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    () => (typeof localStorage !== 'undefined' ? 
+      (localStorage.getItem(storageKey) as Theme) || defaultTheme : 
+      defaultTheme)
   );
 
   React.useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
+    if (typeof window !== 'undefined') {
+      const root = window.document.documentElement;
+      root.classList.remove("light", "dark");
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      root.classList.add(systemTheme);
-      return;
+      if (theme === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : "light";
+        root.classList.add(systemTheme);
+        return;
+      }
+
+      root.classList.add(theme);
     }
-
-    root.classList.add(theme);
   }, [theme]);
 
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(storageKey, theme);
+      }
       setTheme(theme);
     },
   };
