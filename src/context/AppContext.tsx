@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 
-type UserRole = 'super_user' | 'administrator' | 'creator' | 'validator' | 'viewer';
+type UserRole = 'admin' | 'user' | 'guest';
 
 type User = {
   id: string;
@@ -9,8 +9,6 @@ type User = {
   lastName: string;
   email: string;
   role: UserRole;
-  fieldOffice: string;
-  jobTitle: string;
 };
 
 type AppContextType = {
@@ -22,8 +20,6 @@ type AppContextType = {
   toggleSidebar: () => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
-  language: 'en' | 'fr';
-  setLanguage: (lang: 'en' | 'fr') => void;
 };
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
@@ -33,7 +29,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
-  const [language, setLanguage] = React.useState<'en' | 'fr'>('en');
 
   // Check for saved dark mode preference
   React.useEffect(() => {
@@ -79,8 +74,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         toggleSidebar,
         isDarkMode,
         toggleDarkMode,
-        language,
-        setLanguage,
       }}
     >
       {children}

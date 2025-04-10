@@ -4,12 +4,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { AppProvider } from './context/AppContext';
-import * as serviceWorker from './serviceWorker';
 
-// Make sure React is properly available globally
+// Make React available globally
 window.React = React;
 
-// Define a function to render the application
 const renderApp = () => {
   const rootElement = document.getElementById('root');
   
@@ -19,10 +17,8 @@ const renderApp = () => {
   }
 
   try {
-    // Create the root using React 18's createRoot API
     const root = ReactDOM.createRoot(rootElement);
     
-    // Render the app with proper context providers
     root.render(
       <React.StrictMode>
         <AppProvider>
@@ -30,18 +26,14 @@ const renderApp = () => {
         </AppProvider>
       </React.StrictMode>
     );
-
-    // Register service worker for offline capabilities
-    serviceWorker.register();
   } catch (error) {
     console.error('Error rendering the application:', error);
   }
 };
 
-// Make sure the DOM is fully loaded before rendering
+// Render the app when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderApp);
 } else {
-  // DOM is already loaded, render immediately
   renderApp();
 }

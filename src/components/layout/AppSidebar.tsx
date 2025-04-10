@@ -14,17 +14,8 @@ import {
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, 
-  ListChecks, 
-  Database, 
-  Settings, 
-  UploadCloud, 
-  Download, 
-  Calendar, 
-  BarChart, 
-  FileText, 
-  Users, 
-  Wrench,
-  Layers
+  Settings,
+  Users
 } from 'lucide-react';
 
 const AppSidebar = () => {
@@ -32,47 +23,17 @@ const AppSidebar = () => {
   
   const menuItems = [
     {
-      title: "Tableau de bord",
+      title: "Dashboard",
       path: "/dashboard",
       icon: LayoutDashboard
     },
     {
-      title: "Planning",
-      path: "/planning",
-      icon: Calendar
-    },
-    {
-      title: "Données actuelles",
-      path: "/actual-data",
-      icon: BarChart
-    },
-    {
-      title: "Configuration des données",
-      path: "/data-config",
-      icon: Database
-    },
-    {
-      title: "Rapports",
-      path: "/reports",
-      icon: FileText
-    },
-    {
-      title: "Outils",
-      path: "/tools",
-      icon: Wrench
-    },
-    {
-      title: "Sites",
-      path: "/sites",
-      icon: Layers
-    },
-    {
-      title: "Utilisateurs",
+      title: "Users",
       path: "/users",
       icon: Users
     },
     {
-      title: "Paramètres",
+      title: "Settings",
       path: "/settings",
       icon: Settings
     }
@@ -82,7 +43,7 @@ const AppSidebar = () => {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center px-4 py-2">
-          <span className="text-lg font-semibold text-white">MEMS</span>
+          <span className="text-lg font-semibold text-white">Menu</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
