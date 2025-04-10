@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import * as React from 'react';
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -12,7 +12,7 @@ interface AppLayoutProps {
 }
 
 const AppLayout = ({ children }: AppLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const isMobile = useIsMobile();
   
   const toggleSidebar = () => {
