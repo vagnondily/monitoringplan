@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import Parameters from '@/components/settings/Parameters';
@@ -15,11 +15,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const Settings = () => {
   const { isDarkMode, toggleDarkMode, language, setLanguage, user } = useAppContext();
-  const [activeTab, setActiveTab] = React.useState('general');
+  const [activeTab, setActiveTab] = useState('general');
   const appVersion = "1.0.0";
 
   // Check if user is admin to allow users management
-  const isAdmin = user?.role === 'administrator' || user?.role === 'super_user' || user?.role === 'admin';
+  const isAdmin = user?.role === 'administrator' || user?.role === 'super_user';
 
   return (
     <div className="space-y-6">

@@ -1,14 +1,14 @@
 
-import * as React from 'react';
-
-type UserRole = 'admin' | 'user' | 'guest' | 'administrator' | 'super_user' | 'creator' | 'validator' | 'viewer';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type User = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: UserRole;
+  role: 'super_user' | 'administrator' | 'creator' | 'validator' | 'viewer';
+  fieldOffice: string;
+  jobTitle: string;
 };
 
 type AppContextType = {
@@ -21,33 +21,25 @@ type AppContextType = {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   language: 'en' | 'fr';
-  setLanguage: (language: 'en' | 'fr') => void;
+  setLanguage: (lang: 'en' | 'fr') => void;
 };
 
-const AppContext = React.createContext<AppContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
-  const [language, setLanguage] = React.useState<'en' | 'fr'>('fr');
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
 
   // Check for saved dark mode preference
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-      setIsDarkMode(savedDarkMode);
-      
-      if (savedDarkMode && typeof document !== 'undefined') {
-        document.documentElement.classList.add('dark');
-      }
-
-      // Check for saved language preference
-      const savedLanguage = localStorage.getItem('language');
-      if (savedLanguage === 'en' || savedLanguage === 'fr') {
-        setLanguage(savedLanguage);
-      }
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+    
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
@@ -58,24 +50,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode;
     setIsDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
     
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('darkMode', String(newDarkMode));
-    }
-    
-    if (typeof document !== 'undefined') {
-      if (newDarkMode) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  };
-
-  const handleSetLanguage = (newLanguage: 'en' | 'fr') => {
-    setLanguage(newLanguage);
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('language', newLanguage);
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   };
 
@@ -91,18 +71,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         isDarkMode,
         toggleDarkMode,
         language,
-        setLanguage: handleSetLanguage,
+        setLanguage,
       }}
     >
       {children}
     </AppContext.Provider>
   );
-}
+};
 
-export function useAppContext() {
-  const context = React.useContext(AppContext);
+export const useAppContext = () => {
+  const context = useContext(AppContext);
   if (context === undefined) {
     throw new Error('useAppContext must be used within an AppProvider');
   }
   return context;
-}
+};

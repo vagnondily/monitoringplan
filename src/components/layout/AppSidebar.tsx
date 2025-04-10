@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Sidebar, 
@@ -14,8 +14,17 @@ import {
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, 
-  Settings,
-  Users
+  ListChecks, 
+  Database, 
+  Settings, 
+  UploadCloud, 
+  Download, 
+  Calendar, 
+  BarChart, 
+  FileText, 
+  Users, 
+  Tool,
+  Layers
 } from 'lucide-react';
 
 const AppSidebar = () => {
@@ -23,17 +32,47 @@ const AppSidebar = () => {
   
   const menuItems = [
     {
-      title: "Dashboard",
+      title: "Tableau de bord",
       path: "/dashboard",
       icon: LayoutDashboard
     },
     {
-      title: "Users",
+      title: "Planning",
+      path: "/planning",
+      icon: Calendar
+    },
+    {
+      title: "Données actuelles",
+      path: "/actual-data",
+      icon: BarChart
+    },
+    {
+      title: "Configuration des données",
+      path: "/data-config",
+      icon: Database
+    },
+    {
+      title: "Rapports",
+      path: "/reports",
+      icon: FileText
+    },
+    {
+      title: "Outils",
+      path: "/tools",
+      icon: Tool
+    },
+    {
+      title: "Sites",
+      path: "/sites",
+      icon: Layers
+    },
+    {
+      title: "Utilisateurs",
       path: "/users",
       icon: Users
     },
     {
-      title: "Settings",
+      title: "Paramètres",
       path: "/settings",
       icon: Settings
     }
@@ -43,7 +82,7 @@ const AppSidebar = () => {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center px-4 py-2">
-          <span className="text-lg font-semibold text-white">Menu</span>
+          <span className="text-lg font-semibold text-white">MEMS</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
