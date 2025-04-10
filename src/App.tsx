@@ -25,8 +25,8 @@ import ReportTemplate from "./pages/ReportTemplate";
 import { ThemeProvider } from "./components/ThemeProvider";
 import Login from "@/pages/auth/Login";
 import { useAppContext } from "@/context/AppContext";
+import authService from "./services/authService";
 
-// Create a client for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -37,7 +37,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, setIsAuthenticated, setUser } = useAppContext();
   
@@ -68,7 +67,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Auth routes component - redirects to dashboard if already logged in
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAppContext();
   
@@ -79,7 +77,6 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// The worker registration for offline support
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
