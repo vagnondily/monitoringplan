@@ -30,14 +30,16 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Download, Upload, Filter } from 'lucide-react';
+import { Plus, Download, Upload, Filter, Table, LayoutGrid } from 'lucide-react';
 import SitesList from '@/components/sites/SitesList';
 import { siteService } from '@/services/dataService';
-import { Site } from '@/types';
+import { parametersService } from '@/services/parametersService';
+import { Site, OverarchingParameter } from '@/types';
 import FileUploader from '@/components/data/FileUploader';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 
 const Sites = () => {
   const queryClient = useQueryClient();
@@ -51,7 +53,10 @@ const Sites = () => {
     priority: '',
     status: '',
     monitoringPriority: '',
-    requiredFrequency: ''
+    requiredFrequency: '',
+    fieldOffice: '',
+    district: '',
+    commune: ''
   });
   
   const [formData, setFormData] = useState<Partial<Site>>({
@@ -69,6 +74,11 @@ const Sites = () => {
   const { data: sites = [], isLoading } = useQuery<Site[]>({
     queryKey: ['sites'],
     queryFn: siteService.getSites
+  });
+
+  const { data: parameters = [] } = useQuery<OverarchingParameter[]>({
+    queryKey: ['overarching-parameters'],
+    queryFn: parametersService.getOverarchingParameters
   });
 
   const createSiteMutation = useMutation({
@@ -105,6 +115,30 @@ const Sites = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sites'] });
       setIsImportDialogOpen(false);
+    }
+  });
+
+  const updateMonthlyPlanMutation = useMutation({
+    mutationFn: ({ siteId, month, data }: { siteId: string, month: string, data: any }) => {
+      // Trouver le site à mettre à jour
+      const site = sites.find(s => s.id === siteId);
+      if (!site) return Promise.reject("Site non trouvé");
+      
+      // Créer une copie du site avec les activités mensuelles mises à jour
+      const updatedSite = { 
+        ...site,
+        monthlyActivities: {
+          ...(site.monthlyActivities || {}),
+          [month]: data
+        }
+      };
+      
+      // Mettre à jour le site
+      return siteService.updateSite(updatedSite);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
+      toast.success('Planification mise à jour');
     }
   });
 
@@ -174,9 +208,21 @@ const Sites = () => {
       priority: '',
       status: '',
       monitoringPriority: '',
-      requiredFrequency: ''
+      requiredFrequency: '',
+      fieldOffice: '',
+      district: '',
+      commune: ''
     });
   };
+
+  const handleUpdateMonthlyPlan = (siteId: string, month: string, data: any) => {
+    updateMonthlyPlanMutation.mutate({ siteId, month, data });
+  };
+
+  // Extraire les valeurs uniques pour les filtres
+  const fieldOffices = [...new Set(sites.map(site => site.subOfficeName).filter(Boolean))];
+  const districts = [...new Set(sites.map(site => site.district).filter(Boolean))];
+  const communes = [...new Set(sites.map(site => site.commune).filter(Boolean))];
 
   const filteredSites = sites.filter(site => {
     // Filtre par texte de recherche
@@ -203,7 +249,10 @@ const Sites = () => {
       (filters.priority === '' || site.priority === filters.priority) &&
       (filters.status === '' || site.status === filters.status) &&
       (filters.monitoringPriority === '' || site.monitoringPriority === filters.monitoringPriority) &&
-      (filters.requiredFrequency === '' || site.requiredFrequency === filters.requiredFrequency);
+      (filters.requiredFrequency === '' || site.requiredFrequency === filters.requiredFrequency) &&
+      (filters.fieldOffice === '' || site.subOfficeName === filters.fieldOffice) &&
+      (filters.district === '' || site.district === filters.district) &&
+      (filters.commune === '' || site.commune === filters.commune);
 
     return matchesSearch && matchesTab && matchesAdvancedFilters;
   });
@@ -310,7 +359,8 @@ const Sites = () => {
             <SitesList 
               sites={filteredSites} 
               onEdit={handleEdit} 
-              onDelete={handleDelete} 
+              onDelete={handleDelete}
+              onUpdateMonthlyPlan={handleUpdateMonthlyPlan}
             />
           )}
         </TabsContent>
@@ -321,7 +371,8 @@ const Sites = () => {
             <SitesList 
               sites={filteredSites} 
               onEdit={handleEdit} 
-              onDelete={handleDelete} 
+              onDelete={handleDelete}
+              onUpdateMonthlyPlan={handleUpdateMonthlyPlan}
             />
           )}
         </TabsContent>
@@ -332,7 +383,8 @@ const Sites = () => {
             <SitesList 
               sites={filteredSites} 
               onEdit={handleEdit} 
-              onDelete={handleDelete} 
+              onDelete={handleDelete}
+              onUpdateMonthlyPlan={handleUpdateMonthlyPlan}
             />
           )}
         </TabsContent>
@@ -343,7 +395,8 @@ const Sites = () => {
             <SitesList 
               sites={filteredSites} 
               onEdit={handleEdit} 
-              onDelete={handleDelete} 
+              onDelete={handleDelete}
+              onUpdateMonthlyPlan={handleUpdateMonthlyPlan}
             />
           )}
         </TabsContent>
@@ -361,178 +414,468 @@ const Sites = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Nom du site
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="location" className="text-right">
-                    Emplacement
-                  </Label>
-                  <Input
-                    id="location"
-                    value={formData.location || ''}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="region" className="text-right">
-                    Région
-                  </Label>
-                  <Input
-                    id="region"
-                    value={formData.region || ''}
-                    onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="district" className="text-right">
-                    District
-                  </Label>
-                  <Input
-                    id="district"
-                    value={formData.district || ''}
-                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="commune" className="text-right">
-                    Commune
-                  </Label>
-                  <Input
-                    id="commune"
-                    value={formData.commune || ''}
-                    onChange={(e) => setFormData({ ...formData, commune: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
+            <Tabs defaultValue="general">
+              <TabsList className="w-full grid grid-cols-3">
+                <TabsTrigger value="general">Informations générales</TabsTrigger>
+                <TabsTrigger value="details">Détails additionnels</TabsTrigger>
+                <TabsTrigger value="monitoring">Suivi et planification</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="general">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Nom du site
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name || ''}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="subOfficeName" className="text-right">
+                        Bureau
+                      </Label>
+                      <Input
+                        id="subOfficeName"
+                        value={formData.subOfficeName || ''}
+                        onChange={(e) => setFormData({ ...formData, subOfficeName: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="antenne" className="text-right">
+                        Antenne
+                      </Label>
+                      <Input
+                        id="antenne"
+                        value={formData.antenne || ''}
+                        onChange={(e) => setFormData({ ...formData, antenne: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="location" className="text-right">
+                        Emplacement
+                      </Label>
+                      <Input
+                        id="location"
+                        value={formData.location || ''}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="region" className="text-right">
+                        Région
+                      </Label>
+                      <Input
+                        id="region"
+                        value={formData.region || ''}
+                        onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="district" className="text-right">
+                        District
+                      </Label>
+                      <Input
+                        id="district"
+                        value={formData.district || ''}
+                        onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="activeSite" className="text-right">
-                    Site actif
-                  </Label>
-                  <Select
-                    value={formData.activeSite ? "true" : "false"}
-                    onValueChange={(value) => setFormData({ ...formData, activeSite: value === "true" })}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Site actif?" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">Oui</SelectItem>
-                      <SelectItem value="false">Non</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="commune" className="text-right">
+                        Commune
+                      </Label>
+                      <Input
+                        id="commune"
+                        value={formData.commune || ''}
+                        onChange={(e) => setFormData({ ...formData, commune: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="fokontany" className="text-right">
+                        Fokontany
+                      </Label>
+                      <Input
+                        id="fokontany"
+                        value={formData.fokontany || ''}
+                        onChange={(e) => setFormData({ ...formData, fokontany: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="gpsLatitude" className="text-right">
+                        GPS Latitude
+                      </Label>
+                      <Input
+                        id="gpsLatitude"
+                        value={formData.gpsLatitude || ''}
+                        onChange={(e) => setFormData({ ...formData, gpsLatitude: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="gpsLongitude" className="text-right">
+                        GPS Longitude
+                      </Label>
+                      <Input
+                        id="gpsLongitude"
+                        value={formData.gpsLongitude || ''}
+                        onChange={(e) => setFormData({ ...formData, gpsLongitude: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="status" className="text-right">
+                        Statut
+                      </Label>
+                      <Select
+                        value={formData.status || 'Actif'}
+                        onValueChange={(value) => setFormData({ ...formData, status: value })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Sélectionner un statut" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Actif">Actif</SelectItem>
+                          <SelectItem value="En maintenance">En maintenance</SelectItem>
+                          <SelectItem value="Inactif">Inactif</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="activeSite" className="text-right">
+                        Site actif
+                      </Label>
+                      <Select
+                        value={formData.activeSite ? "true" : "false"}
+                        onValueChange={(value) => setFormData({ ...formData, activeSite: value === "true" })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Site actif?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Oui</SelectItem>
+                          <SelectItem value="false">Non</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">
-                    Statut
-                  </Label>
-                  <Select
-                    value={formData.status || 'Actif'}
-                    onValueChange={(value) => setFormData({ ...formData, status: value })}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Sélectionner un statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Actif">Actif</SelectItem>
-                      <SelectItem value="En maintenance">En maintenance</SelectItem>
-                      <SelectItem value="Inactif">Inactif</SelectItem>
-                    </SelectContent>
-                  </Select>
+              </TabsContent>
+              
+              <TabsContent value="details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="activityCategory" className="text-right">
+                        Catégorie d'activité
+                      </Label>
+                      <Input
+                        id="activityCategory"
+                        value={formData.activityCategory || ''}
+                        onChange={(e) => setFormData({ ...formData, activityCategory: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="programArea" className="text-right">
+                        Zone de programme
+                      </Label>
+                      <Input
+                        id="programArea"
+                        value={formData.programArea || ''}
+                        onChange={(e) => setFormData({ ...formData, programArea: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="modalityType" className="text-right">
+                        Type de modalité
+                      </Label>
+                      <Select
+                        value={formData.modalityType || ''}
+                        onValueChange={(value) => setFormData({ ...formData, modalityType: value })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Type de modalité" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="Voucher">Voucher</SelectItem>
+                          <SelectItem value="Food">Food</SelectItem>
+                          <SelectItem value="Capacity Strengthening">Capacity Strengthening</SelectItem>
+                          <SelectItem value="Mix">Mix</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="beneficiaryNumber" className="text-right">
+                        Nombre de bénéficiaires
+                      </Label>
+                      <Input
+                        id="beneficiaryNumber"
+                        type="number"
+                        value={formData.beneficiaryNumber || ''}
+                        onChange={(e) => setFormData({ ...formData, beneficiaryNumber: parseInt(e.target.value) })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="securitySituation" className="text-right">
+                        Situation sécuritaire
+                      </Label>
+                      <Select
+                        value={String(formData.securitySituation || 0)}
+                        onValueChange={(value) => setFormData({ ...formData, securitySituation: parseInt(value) })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Situation sécuritaire" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">0 - Pas de restriction</SelectItem>
+                          <SelectItem value="1">1 - Restriction modérée</SelectItem>
+                          <SelectItem value="3">3 - Restriction stricte</SelectItem>
+                          <SelectItem value="99">99 - Zone interdite</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="programmeSynergies" className="text-right">
+                        Synergies de programme
+                      </Label>
+                      <Select
+                        value={String(formData.programmeSynergies || 0)}
+                        onValueChange={(value) => setFormData({ ...formData, programmeSynergies: parseInt(value) })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Synergies de programme" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">0 - Une seule activité</SelectItem>
+                          <SelectItem value="1">1 - Plus d'une activité</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="newPartner" className="text-right">
+                        Nouveau partenaire
+                      </Label>
+                      <Select
+                        value={String(formData.newPartner || 0)}
+                        onValueChange={(value) => setFormData({ ...formData, newPartner: parseInt(value) })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Nouveau partenaire" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">0 - Partenaire avec expérience</SelectItem>
+                          <SelectItem value="1">1 - Nouveau partenaire</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="experiencedPartner" className="text-right">
+                        Partenaire expérimenté
+                      </Label>
+                      <Select
+                        value={String(formData.experiencedPartner || 0)}
+                        onValueChange={(value) => setFormData({ ...formData, experiencedPartner: parseInt(value) })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Partenaire expérimenté" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">0 - Bonne expérience</SelectItem>
+                          <SelectItem value="1">1 - Expérience moyenne</SelectItem>
+                          <SelectItem value="2">2 - Expérience problématique</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="manager" className="text-right">
+                        Responsable
+                      </Label>
+                      <Input
+                        id="manager"
+                        value={formData.manager || ''}
+                        onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="priority" className="text-right">
-                    Priorité
-                  </Label>
-                  <Select
-                    value={formData.priority || 'Normal'}
-                    onValueChange={(value) => setFormData({ ...formData, priority: value })}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Priorité du site" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="High">Haute</SelectItem>
-                      <SelectItem value="Normal">Normale</SelectItem>
-                      <SelectItem value="Low">Basse</SelectItem>
-                    </SelectContent>
-                  </Select>
+              </TabsContent>
+              
+              <TabsContent value="monitoring">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="lastVisitDate" className="text-right">
+                        Dernière visite
+                      </Label>
+                      <Input
+                        id="lastVisitDate"
+                        type="date"
+                        value={formData.lastVisitDate || ''}
+                        onChange={(e) => setFormData({ ...formData, lastVisitDate: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="monitoringPriority" className="text-right">
+                        Priorité de suivi
+                      </Label>
+                      <Select
+                        value={formData.monitoringPriority || 'Medium'}
+                        onValueChange={(value) => setFormData({ ...formData, monitoringPriority: value })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Priorité de suivi" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="High">Haute</SelectItem>
+                          <SelectItem value="Medium">Moyenne</SelectItem>
+                          <SelectItem value="Low">Basse</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="requiredVisitInterval" className="text-right">
+                        Intervalle requis (mois)
+                      </Label>
+                      <Input
+                        id="requiredVisitInterval"
+                        type="number"
+                        value={formData.requiredVisitInterval || ''}
+                        onChange={(e) => setFormData({ ...formData, requiredVisitInterval: parseInt(e.target.value) })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="requiredFrequency" className="text-right">
+                        Fréquence requise
+                      </Label>
+                      <Select
+                        value={formData.requiredFrequency || ''}
+                        onValueChange={(value) => setFormData({ ...formData, requiredFrequency: value })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Fréquence requise" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Monthly">Mensuelle</SelectItem>
+                          <SelectItem value="Quarterly">Trimestrielle</SelectItem>
+                          <SelectItem value="Biannual">Semestrielle</SelectItem>
+                          <SelectItem value="Annual">Annuelle</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="visitCount" className="text-right">
+                        Nombre de visites
+                      </Label>
+                      <Input
+                        id="visitCount"
+                        type="number"
+                        value={formData.visitCount || ''}
+                        onChange={(e) => setFormData({ ...formData, visitCount: parseInt(e.target.value) })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="sitesToVisit" className="text-right">
+                        Sites à visiter
+                      </Label>
+                      <Input
+                        id="sitesToVisit"
+                        type="number"
+                        value={formData.sitesToVisit || ''}
+                        onChange={(e) => setFormData({ ...formData, sitesToVisit: parseInt(e.target.value) })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="finalScore" className="text-right">
+                        Score final
+                      </Label>
+                      <Select
+                        value={String(formData.finalScore || 0)}
+                        onValueChange={(value) => setFormData({ ...formData, finalScore: parseInt(value) })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Score final" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">0 - Faible priorité</SelectItem>
+                          <SelectItem value="1">1 - Priorité moyenne</SelectItem>
+                          <SelectItem value="2">2 - Haute priorité</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="priority" className="text-right">
+                        Priorité
+                      </Label>
+                      <Select
+                        value={formData.priority || 'Normal'}
+                        onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Priorité du site" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="High">Haute</SelectItem>
+                          <SelectItem value="Normal">Normale</SelectItem>
+                          <SelectItem value="Low">Basse</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="monitoringPriority" className="text-right">
-                    Priorité de suivi
-                  </Label>
-                  <Select
-                    value={formData.monitoringPriority || 'Medium'}
-                    onValueChange={(value) => setFormData({ ...formData, monitoringPriority: value })}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Priorité de suivi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="High">Haute</SelectItem>
-                      <SelectItem value="Medium">Moyenne</SelectItem>
-                      <SelectItem value="Low">Basse</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="requiredFrequency" className="text-right">
-                    Fréquence requise
-                  </Label>
-                  <Select
-                    value={formData.requiredFrequency || ''}
-                    onValueChange={(value) => setFormData({ ...formData, requiredFrequency: value })}
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Fréquence requise" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Monthly">Mensuelle</SelectItem>
-                      <SelectItem value="Quarterly">Trimestrielle</SelectItem>
-                      <SelectItem value="Biannual">Semestrielle</SelectItem>
-                      <SelectItem value="Annual">Annuelle</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="manager" className="text-right">
-                    Responsable
-                  </Label>
-                  <Input
-                    id="manager"
-                    value={formData.manager || ''}
-                    onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                    className="col-span-3"
-                  />
-                </div>
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={resetFormAndCloseDialog}>
@@ -673,6 +1016,66 @@ const Sites = () => {
                   <SelectItem value="Quarterly">Trimestrielle</SelectItem>
                   <SelectItem value="Biannual">Semestrielle</SelectItem>
                   <SelectItem value="Annual">Annuelle</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterFieldOffice" className="text-right">
+                Bureau
+              </Label>
+              <Select
+                value={filters.fieldOffice}
+                onValueChange={(value) => handleFilterChange('fieldOffice', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Tous les bureaux" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tous</SelectItem>
+                  {fieldOffices.map(office => (
+                    <SelectItem key={office} value={office}>{office}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterDistrict" className="text-right">
+                District
+              </Label>
+              <Select
+                value={filters.district}
+                onValueChange={(value) => handleFilterChange('district', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Tous les districts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tous</SelectItem>
+                  {districts.map(district => (
+                    <SelectItem key={district} value={district}>{district}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterCommune" className="text-right">
+                Commune
+              </Label>
+              <Select
+                value={filters.commune}
+                onValueChange={(value) => handleFilterChange('commune', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Toutes les communes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Toutes</SelectItem>
+                  {communes.map(commune => (
+                    <SelectItem key={commune} value={commune}>{commune}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -7,9 +7,10 @@ interface StatsCardProps {
   value: string | number;
   icon: React.ReactNode;
   description?: string;
+  trend?: React.ReactNode;
 }
 
-const StatsCard = ({ title, value, icon, description }: StatsCardProps) => {
+const StatsCard = ({ title, value, icon, description, trend }: StatsCardProps) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -18,7 +19,10 @@ const StatsCard = ({ title, value, icon, description }: StatsCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
+        <div className="flex items-center justify-between mt-1">
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+          {trend && <div className="ml-auto">{trend}</div>}
+        </div>
       </CardContent>
     </Card>
   );

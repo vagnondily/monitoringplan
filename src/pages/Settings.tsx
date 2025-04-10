@@ -1,144 +1,114 @@
 
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { settingsService } from '@/services/dataService';
-import { ConfigSetting } from '@/types';
-import { toast } from 'sonner';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useQuery } from '@tanstack/react-query';
+import { parametersService } from '@/services/parametersService';
+import OverarchingParameters from '@/components/settings/OverarchingParameters';
+import OdkDecryptionManager from '@/components/settings/OdkDecryptionManager';
+import { Settings as SettingsIcon, Lock, Database, Users, Shield, Workflow } from 'lucide-react';
 
 const Settings = () => {
-  const queryClient = useQueryClient();
-  const [editedSettings, setEditedSettings] = useState<Record<string, ConfigSetting>>({});
-
-  const { data: settings = [] } = useQuery<ConfigSetting[]>({
-    queryKey: ['settings'],
-    queryFn: settingsService.getSettings
+  const [activeTab, setActiveTab] = useState("general");
+  
+  const { data: parameters, isLoading: isLoadingParameters } = useQuery({
+    queryKey: ["parameters"],
+    queryFn: parametersService.getOverarchingParameters
   });
-
-  const updateSettingMutation = useMutation({
-    mutationFn: (setting: ConfigSetting) => settingsService.updateSetting(setting),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings'] });
-      toast.success('Paramètres mis à jour avec succès');
-      setEditedSettings({});
-    }
-  });
-
-  const handleSettingChange = (setting: ConfigSetting, value: string) => {
-    setEditedSettings({
-      ...editedSettings,
-      [setting.id]: {
-        ...setting,
-        value
-      }
-    });
-  };
-
-  const saveSettings = () => {
-    const updates = Object.values(editedSettings);
-    if (updates.length === 0) {
-      toast.info('Aucune modification à enregistrer');
-      return;
-    }
-
-    // Mettre à jour chaque paramètre modifié
-    updates.forEach(setting => {
-      updateSettingMutation.mutate(setting);
-    });
-  };
-
-  // Regrouper les paramètres par catégorie
-  const settingsByCategory = settings.reduce<Record<string, ConfigSetting[]>>((acc, setting) => {
-    if (!acc[setting.category]) {
-      acc[setting.category] = [];
-    }
-    acc[setting.category].push(setting);
-    return acc;
-  }, {});
-
-  const categories = Object.keys(settingsByCategory);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Paramètres</h1>
-        <Button 
-          className="bg-app-blue hover:bg-app-lightBlue"
-          onClick={saveSettings}
-          disabled={Object.keys(editedSettings).length === 0 || updateSettingMutation.isPending}
-        >
-          Enregistrer les modifications
-        </Button>
+        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <SettingsIcon className="h-8 w-8 text-app-blue" /> 
+          Paramètres
+        </h1>
       </div>
 
-      <Tabs defaultValue={categories[0] || "Général"}>
-        <TabsList className="mb-4">
-          {categories.map(category => (
-            <TabsTrigger key={category} value={category}>
-              {category}
-            </TabsTrigger>
-          ))}
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-5 w-full md:w-3/4 lg:w-2/3">
+          <TabsTrigger value="general">Général</TabsTrigger>
+          <TabsTrigger value="security">Sécurité</TabsTrigger>
+          <TabsTrigger value="data">Données</TabsTrigger>
+          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="workflow">Workflow</TabsTrigger>
         </TabsList>
 
-        {categories.map(category => (
-          <TabsContent key={category} value={category}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Paramètres {category}</CardTitle>
-                <CardDescription>
-                  Configurez les paramètres relatifs à {category.toLowerCase()}.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {settingsByCategory[category].map(setting => (
-                  <div key={setting.id} className="grid grid-cols-4 items-start gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor={`setting-${setting.id}`}>{setting.name}</Label>
-                      <p className="text-sm text-gray-500">{setting.description}</p>
-                    </div>
-                    <div className="col-span-3">
-                      <Input
-                        id={`setting-${setting.id}`}
-                        value={editedSettings[setting.id]?.value ?? setting.value}
-                        onChange={(e) => handleSettingChange(setting, e.target.value)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+        <TabsContent value="general" className="space-y-4">
+          <OverarchingParameters 
+            parameters={parameters || []} 
+            isLoading={isLoadingParameters}
+          />
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>À propos de l'application</CardTitle>
-          <CardDescription>
-            Informations sur l'application SiteSync Insight
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div>
-            <p><strong>Version:</strong> 1.0.0</p>
-            <p><strong>Dernière mise à jour:</strong> {new Date().toLocaleDateString()}</p>
-            <p className="mt-4 text-sm text-gray-500">
-              SiteSync Insight est un outil de gestion de suivi des sites et de gestion de projet.
-              Ce logiciel permet l'intégration avec ONA et Foundry pour une synchronisation complète des données.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="security" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="h-5 w-5 text-app-blue" />
+                Sécurité et confidentialité
+              </CardTitle>
+              <CardDescription>
+                Gérez les paramètres de sécurité et de confidentialité de l'application
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OdkDecryptionManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="data" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5 text-app-blue" />
+                Gestion des données
+              </CardTitle>
+              <CardDescription>
+                Configurez les paramètres liés à la gestion des données
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Paramètres de gestion des données à implémenter</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-app-blue" />
+                Utilisateurs et permissions
+              </CardTitle>
+              <CardDescription>
+                Gérez les utilisateurs et leurs permissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Paramètres des utilisateurs à implémenter</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="workflow" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Workflow className="h-5 w-5 text-app-blue" />
+                Configuration du workflow
+              </CardTitle>
+              <CardDescription>
+                Configurez les paramètres du système de workflow
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Paramètres de workflow à implémenter</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
