@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import * as React from 'react';
 
 type UserRole = 'super_user' | 'administrator' | 'creator' | 'validator' | 'viewer';
 
@@ -26,14 +26,14 @@ type AppContextType = {
   setLanguage: (lang: 'en' | 'fr') => void;
 };
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
+const AppContext = React.createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'fr'>('en');
+export function AppProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = React.useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [language, setLanguage] = React.useState<'en' | 'fr'>('en');
 
   // Check for saved dark mode preference
   React.useEffect(() => {
@@ -79,12 +79,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       {children}
     </AppContext.Provider>
   );
-};
+}
 
-export const useAppContext = () => {
-  const context = useContext(AppContext);
+export function useAppContext() {
+  const context = React.useContext(AppContext);
   if (context === undefined) {
     throw new Error('useAppContext must be used within an AppProvider');
   }
   return context;
-};
+}
