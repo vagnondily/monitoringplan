@@ -96,6 +96,15 @@ const registerServiceWorker = async () => {
   }
 };
 
+// React component to wrap content with TooltipProvider
+const TooltipProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <TooltipProvider>
+      {children}
+    </TooltipProvider>
+  );
+};
+
 const App = () => {
   const { isAuthenticated } = useAppContext();
   
@@ -108,58 +117,58 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ThemeProvider defaultTheme="light" storageKey="app-theme">
-          <TooltipProvider>
-            <Routes>
-              {/* Auth routes */}
-              <Route path="/login" element={
-                <AuthRoute>
-                  <Login />
-                </AuthRoute>
-              } />
-              
-              {/* Root route redirects to dashboard or login */}
-              <Route path="/" element={
-                isAuthenticated ? 
-                  <Navigate to="/dashboard" replace /> : 
-                  <Navigate to="/login" replace />
-              } />
-              
-              {/* Protected routes */}
-              <Route element={
-                <ProtectedRoute>
-                  <AppLayout>
+          <Routes>
+            {/* Auth routes */}
+            <Route path="/login" element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            } />
+            
+            {/* Root route redirects to dashboard or login */}
+            <Route path="/" element={
+              isAuthenticated ? 
+                <Navigate to="/dashboard" replace /> : 
+                <Navigate to="/login" replace />
+            } />
+            
+            {/* Protected routes */}
+            <Route element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <TooltipProviderWrapper>
                     <Outlet />
-                  </AppLayout>
-                </ProtectedRoute>
-              }>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/planning" element={<div>Planning Component</div>} />
-                <Route path="/sites" element={<Sites />} />
-                <Route path="/sites/:id" element={<SiteDetails />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/actual-data" element={<ActualData />} />
-                <Route path="/data-config" element={<div>Data Configuration Component</div>} />
-                <Route path="/reports" element={<div>Reports Component</div>} />
-                <Route path="/tools" element={<div>Tools Component</div>} />
-                <Route path="/tools/workflow" element={<Workflow />} />
-                <Route path="/tools/report-template" element={<ReportTemplate />} />
-                <Route path="/import" element={<Import />} />
-                <Route path="/export" element={<Export />} />
-                <Route path="/users" element={<UsersManagement />} />
-                <Route path="/messaging" element={<Messaging />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/integrations" element={<Integrations />} />
-                <Route path="/data-sources" element={<DataSources />} />
-                <Route path="/map-visualization" element={<MapVisualization />} />
-                <Route path="/settings" element={<Settings />} />
-              </Route>
-              
-              {/* Catch all for non-existent routes */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </TooltipProvider>
+                  </TooltipProviderWrapper>
+                </AppLayout>
+              </ProtectedRoute>
+            }>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/planning" element={<div>Planning Component</div>} />
+              <Route path="/sites" element={<Sites />} />
+              <Route path="/sites/:id" element={<SiteDetails />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/actual-data" element={<ActualData />} />
+              <Route path="/data-config" element={<div>Data Configuration Component</div>} />
+              <Route path="/reports" element={<div>Reports Component</div>} />
+              <Route path="/tools" element={<div>Tools Component</div>} />
+              <Route path="/tools/workflow" element={<Workflow />} />
+              <Route path="/tools/report-template" element={<ReportTemplate />} />
+              <Route path="/import" element={<Import />} />
+              <Route path="/export" element={<Export />} />
+              <Route path="/users" element={<UsersManagement />} />
+              <Route path="/messaging" element={<Messaging />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/integrations" element={<Integrations />} />
+              <Route path="/data-sources" element={<DataSources />} />
+              <Route path="/map-visualization" element={<MapVisualization />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+            
+            {/* Catch all for non-existent routes */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+          <Sonner />
         </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>

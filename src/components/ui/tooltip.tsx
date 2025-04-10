@@ -4,10 +4,13 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "@/lib/utils";
 
-// Create a function component wrapper for TooltipProvider to avoid React hook issues
-const TooltipProviderWrapper = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Provider>) => {
-  return <TooltipPrimitive.Provider {...props}>{children}</TooltipPrimitive.Provider>;
-};
+// Create a proper forwardRef component to avoid React hook issues
+const TooltipProviderWrapper = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Provider>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Provider>
+>(({ children, ...props }, ref) => {
+  return <TooltipPrimitive.Provider ref={ref} {...props}>{children}</TooltipPrimitive.Provider>;
+});
 TooltipProviderWrapper.displayName = "TooltipProvider";
 
 const Tooltip = TooltipPrimitive.Root;

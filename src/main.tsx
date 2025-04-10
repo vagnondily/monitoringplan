@@ -11,8 +11,11 @@ if (!window.React) {
   window.React = React;
 }
 
-// Wait for the DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Make sure we have a consistent React context
+window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+
+// Ensure DOM is ready before mounting React
+const mountApp = () => {
   const rootElement = document.getElementById('root');
   
   if (!rootElement) {
@@ -38,4 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch (error) {
     console.error('Error rendering the application:', error);
   }
-});
+};
+
+// Use DOMContentLoaded for initial load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', mountApp);
+} else {
+  // DOM already loaded, mount immediately
+  mountApp();
+}
