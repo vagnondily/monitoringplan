@@ -6,13 +6,10 @@ import './index.css';
 import { AppProvider } from './context/AppContext';
 import * as serviceWorker from './serviceWorker';
 
-// Initialize React correctly and ensure it's available globally
+// Initialize React correctly
 if (!window.React) {
   window.React = React;
 }
-
-// Make sure we have a consistent React context
-window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
 
 // Ensure DOM is ready before mounting React
 const mountApp = () => {
