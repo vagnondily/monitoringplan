@@ -29,24 +29,40 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, Download, Upload } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Download, Upload, Filter } from 'lucide-react';
 import SitesList from '@/components/sites/SitesList';
 import { siteService } from '@/services/dataService';
 import { Site } from '@/types';
 import FileUploader from '@/components/data/FileUploader';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 const Sites = () => {
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+  const [filters, setFilters] = useState({
+    priority: '',
+    status: '',
+    monitoringPriority: '',
+    requiredFrequency: ''
+  });
+  
   const [formData, setFormData] = useState<Partial<Site>>({
     name: '',
     location: '',
     status: 'Actif',
     ipAddress: '',
-    manager: ''
+    manager: '',
+    activeSite: true,
+    priority: 'Normal',
+    monitoringPriority: 'Medium'
   });
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
 
@@ -98,7 +114,10 @@ const Sites = () => {
       location: '',
       status: 'Actif',
       ipAddress: '',
-      manager: ''
+      manager: '',
+      activeSite: true,
+      priority: 'Normal',
+      monitoringPriority: 'Medium'
     });
     setIsAddDialogOpen(false);
     setSelectedSiteId(null);
@@ -143,12 +162,68 @@ const Sites = () => {
     importFromExcelMutation.mutate(file);
   };
 
-  const filteredSites = sites.filter(site => 
-    site.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    site.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    site.ipAddress.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    site.manager.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      priority: '',
+      status: '',
+      monitoringPriority: '',
+      requiredFrequency: ''
+    });
+  };
+
+  const filteredSites = sites.filter(site => {
+    // Filtre par texte de recherche
+    const matchesSearch = 
+      (site.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.region?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.commune?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      site.manager?.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // Filtre par onglet actif
+    let matchesTab = true;
+    if (activeTab === 'active') {
+      matchesTab = site.activeSite === true;
+    } else if (activeTab === 'toVisit') {
+      matchesTab = !!site.sitesToVisit && site.sitesToVisit > 0;
+    } else if (activeTab === 'visited') {
+      matchesTab = !!site.visitCount && site.visitCount > 0;
+    }
+
+    // Filtres avancés
+    const matchesAdvancedFilters = 
+      (filters.priority === '' || site.priority === filters.priority) &&
+      (filters.status === '' || site.status === filters.status) &&
+      (filters.monitoringPriority === '' || site.monitoringPriority === filters.monitoringPriority) &&
+      (filters.requiredFrequency === '' || site.requiredFrequency === filters.requiredFrequency);
+
+    return matchesSearch && matchesTab && matchesAdvancedFilters;
+  });
+
+  const getSiteStats = () => {
+    const activeCount = sites.filter(site => site.activeSite === true).length;
+    const toVisitCount = sites.filter(site => !!site.sitesToVisit && site.sitesToVisit > 0).length;
+    const visitedCount = sites.filter(site => !!site.visitCount && site.visitCount > 0).length;
+    const completionPercentage = sites.length > 0 ? Math.round((visitedCount / sites.length) * 100) : 0;
+    
+    return {
+      activeCount,
+      toVisitCount,
+      visitedCount,
+      total: sites.length,
+      completionPercentage
+    };
+  };
+
+  const stats = getSiteStats();
 
   return (
     <div className="space-y-6">
@@ -177,8 +252,31 @@ const Sites = () => {
         </div>
       </div>
 
-      <div>
-        <div className="mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg border shadow-sm">
+          <div className="text-sm text-gray-500">Total des sites</div>
+          <div className="text-2xl font-bold">{stats.total}</div>
+        </div>
+        <div className="bg-white p-4 rounded-lg border shadow-sm">
+          <div className="text-sm text-gray-500">Sites actifs</div>
+          <div className="text-2xl font-bold text-green-600">{stats.activeCount}</div>
+        </div>
+        <div className="bg-white p-4 rounded-lg border shadow-sm">
+          <div className="text-sm text-gray-500">Sites à visiter</div>
+          <div className="text-2xl font-bold text-amber-600">{stats.toVisitCount}</div>
+        </div>
+        <div className="bg-white p-4 rounded-lg border shadow-sm">
+          <div className="text-sm text-gray-500">Suivi effectué</div>
+          <div className="flex flex-col">
+            <div className="text-2xl font-bold text-blue-600">{stats.visitedCount}</div>
+            <Progress value={stats.completionPercentage} className="h-2 mt-2" />
+            <div className="text-xs text-right mt-1">{stats.completionPercentage}%</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex-1">
           <Input
             placeholder="Rechercher un site..."
             value={searchTerm}
@@ -186,21 +284,74 @@ const Sites = () => {
             className="max-w-md"
           />
         </div>
-
-        {isLoading ? (
-          <div className="text-center py-10">Chargement des sites...</div>
-        ) : (
-          <SitesList 
-            sites={filteredSites} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
-          />
-        )}
+        <Button 
+          variant="outline" 
+          onClick={() => setIsFilterDialogOpen(true)}
+          className="flex items-center"
+        >
+          <Filter className="h-4 w-4 mr-2" /> Filtres avancés
+          {Object.values(filters).some(v => v !== '') && (
+            <Badge className="ml-2 bg-app-blue">{Object.values(filters).filter(v => v !== '').length}</Badge>
+          )}
+        </Button>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-4 w-full">
+          <TabsTrigger value="all">Tous les sites</TabsTrigger>
+          <TabsTrigger value="active">Sites actifs</TabsTrigger>
+          <TabsTrigger value="toVisit">À visiter</TabsTrigger>
+          <TabsTrigger value="visited">Déjà visités</TabsTrigger>
+        </TabsList>
+        <TabsContent value="all" className="mt-0 pt-6">
+          {isLoading ? (
+            <div className="text-center py-10">Chargement des sites...</div>
+          ) : (
+            <SitesList 
+              sites={filteredSites} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete} 
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="active" className="mt-0 pt-6">
+          {isLoading ? (
+            <div className="text-center py-10">Chargement des sites...</div>
+          ) : (
+            <SitesList 
+              sites={filteredSites} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete} 
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="toVisit" className="mt-0 pt-6">
+          {isLoading ? (
+            <div className="text-center py-10">Chargement des sites...</div>
+          ) : (
+            <SitesList 
+              sites={filteredSites} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete} 
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="visited" className="mt-0 pt-6">
+          {isLoading ? (
+            <div className="text-center py-10">Chargement des sites...</div>
+          ) : (
+            <SitesList 
+              sites={filteredSites} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete} 
+            />
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Dialog pour ajouter ou modifier un site */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedSiteId ? 'Modifier le site' : 'Ajouter un nouveau site'}</DialogTitle>
             <DialogDescription>
@@ -210,67 +361,177 @@ const Sites = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Nom
-              </Label>
-              <Input
-                id="name"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-right">
-                Emplacement
-              </Label>
-              <Input
-                id="location"
-                value={formData.location || ''}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Statut
-              </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionner un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Actif">Actif</SelectItem>
-                  <SelectItem value="En maintenance">En maintenance</SelectItem>
-                  <SelectItem value="Inactif">Inactif</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="ipAddress" className="text-right">
-                Adresse IP
-              </Label>
-              <Input
-                id="ipAddress"
-                value={formData.ipAddress || ''}
-                onChange={(e) => setFormData({ ...formData, ipAddress: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="manager" className="text-right">
-                Responsable
-              </Label>
-              <Input
-                id="manager"
-                value={formData.manager || ''}
-                onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                className="col-span-3"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Nom du site
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name || ''}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="location" className="text-right">
+                    Emplacement
+                  </Label>
+                  <Input
+                    id="location"
+                    value={formData.location || ''}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="region" className="text-right">
+                    Région
+                  </Label>
+                  <Input
+                    id="region"
+                    value={formData.region || ''}
+                    onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="district" className="text-right">
+                    District
+                  </Label>
+                  <Input
+                    id="district"
+                    value={formData.district || ''}
+                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="commune" className="text-right">
+                    Commune
+                  </Label>
+                  <Input
+                    id="commune"
+                    value={formData.commune || ''}
+                    onChange={(e) => setFormData({ ...formData, commune: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="activeSite" className="text-right">
+                    Site actif
+                  </Label>
+                  <Select
+                    value={formData.activeSite ? "true" : "false"}
+                    onValueChange={(value) => setFormData({ ...formData, activeSite: value === "true" })}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Site actif?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Oui</SelectItem>
+                      <SelectItem value="false">Non</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="status" className="text-right">
+                    Statut
+                  </Label>
+                  <Select
+                    value={formData.status || 'Actif'}
+                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Sélectionner un statut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Actif">Actif</SelectItem>
+                      <SelectItem value="En maintenance">En maintenance</SelectItem>
+                      <SelectItem value="Inactif">Inactif</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="priority" className="text-right">
+                    Priorité
+                  </Label>
+                  <Select
+                    value={formData.priority || 'Normal'}
+                    onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Priorité du site" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="High">Haute</SelectItem>
+                      <SelectItem value="Normal">Normale</SelectItem>
+                      <SelectItem value="Low">Basse</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="monitoringPriority" className="text-right">
+                    Priorité de suivi
+                  </Label>
+                  <Select
+                    value={formData.monitoringPriority || 'Medium'}
+                    onValueChange={(value) => setFormData({ ...formData, monitoringPriority: value })}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Priorité de suivi" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="High">Haute</SelectItem>
+                      <SelectItem value="Medium">Moyenne</SelectItem>
+                      <SelectItem value="Low">Basse</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="requiredFrequency" className="text-right">
+                    Fréquence requise
+                  </Label>
+                  <Select
+                    value={formData.requiredFrequency || ''}
+                    onValueChange={(value) => setFormData({ ...formData, requiredFrequency: value })}
+                  >
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Fréquence requise" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Monthly">Mensuelle</SelectItem>
+                      <SelectItem value="Quarterly">Trimestrielle</SelectItem>
+                      <SelectItem value="Biannual">Semestrielle</SelectItem>
+                      <SelectItem value="Annual">Annuelle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="manager" className="text-right">
+                    Responsable
+                  </Label>
+                  <Input
+                    id="manager"
+                    value={formData.manager || ''}
+                    onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -322,6 +583,111 @@ const Sites = () => {
             acceptedFileTypes=".xlsx,.xls"
             onFileUpload={handleImportFromExcel}
           />
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialog pour les filtres avancés */}
+      <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Filtres avancés</DialogTitle>
+            <DialogDescription>
+              Filtrez les sites selon des critères spécifiques
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterStatus" className="text-right">
+                Statut
+              </Label>
+              <Select
+                value={filters.status}
+                onValueChange={(value) => handleFilterChange('status', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Tous les statuts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tous</SelectItem>
+                  <SelectItem value="Actif">Actif</SelectItem>
+                  <SelectItem value="En maintenance">En maintenance</SelectItem>
+                  <SelectItem value="Inactif">Inactif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterPriority" className="text-right">
+                Priorité
+              </Label>
+              <Select
+                value={filters.priority}
+                onValueChange={(value) => handleFilterChange('priority', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Toutes les priorités" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Toutes</SelectItem>
+                  <SelectItem value="High">Haute</SelectItem>
+                  <SelectItem value="Normal">Normale</SelectItem>
+                  <SelectItem value="Low">Basse</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterMonitoringPriority" className="text-right">
+                Priorité de suivi
+              </Label>
+              <Select
+                value={filters.monitoringPriority}
+                onValueChange={(value) => handleFilterChange('monitoringPriority', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Toutes les priorités de suivi" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Toutes</SelectItem>
+                  <SelectItem value="High">Haute</SelectItem>
+                  <SelectItem value="Medium">Moyenne</SelectItem>
+                  <SelectItem value="Low">Basse</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="filterRequiredFrequency" className="text-right">
+                Fréquence requise
+              </Label>
+              <Select
+                value={filters.requiredFrequency}
+                onValueChange={(value) => handleFilterChange('requiredFrequency', value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Toutes les fréquences" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Toutes</SelectItem>
+                  <SelectItem value="Monthly">Mensuelle</SelectItem>
+                  <SelectItem value="Quarterly">Trimestrielle</SelectItem>
+                  <SelectItem value="Biannual">Semestrielle</SelectItem>
+                  <SelectItem value="Annual">Annuelle</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={resetFilters}>
+              Réinitialiser
+            </Button>
+            <Button 
+              className="bg-app-blue hover:bg-app-lightBlue"
+              onClick={() => setIsFilterDialogOpen(false)}
+            >
+              Appliquer
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

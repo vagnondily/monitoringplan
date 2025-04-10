@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, AlertCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { Progress } from '@/components/ui/progress';
 
 interface FileUploaderProps {
   title: string;
@@ -11,6 +12,8 @@ interface FileUploaderProps {
   acceptedFileTypes: string;
   maxSize?: number;
   onFileUpload: (file: File) => void;
+  templateAvailable?: boolean;
+  onTemplateDownload?: () => void;
 }
 
 const FileUploader = ({ 
@@ -18,10 +21,14 @@ const FileUploader = ({
   description, 
   acceptedFileTypes, 
   maxSize = 5, 
-  onFileUpload
+  onFileUpload,
+  templateAvailable = false,
+  onTemplateDownload
 }: FileUploaderProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -68,9 +75,23 @@ const FileUploader = ({
   
   const handleUpload = () => {
     if (selectedFile) {
-      onFileUpload(selectedFile);
-      toast.success(`${selectedFile.name} téléchargé avec succès`);
-      setSelectedFile(null);
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      // Simulation de la progression d'importation
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setIsUploading(false);
+            onFileUpload(selectedFile);
+            toast.success(`${selectedFile.name} téléchargé avec succès`);
+            setSelectedFile(null);
+            return 0;
+          }
+          return prev + 10;
+        });
+      }, 300);
     }
   };
 
@@ -108,16 +129,43 @@ const FileUploader = ({
           </div>
           {selectedFile && (
             <div className="mt-4">
-              <p className="text-sm text-gray-700">Fichier sélectionné: {selectedFile.name}</p>
-              <Button 
-                className="mt-2 bg-app-blue hover:bg-app-lightBlue" 
-                onClick={handleUpload}
-              >
-                Télécharger
-              </Button>
+              <div className="flex items-center gap-2 justify-center mb-2">
+                <FileText className="h-4 w-4 text-gray-600" />
+                <p className="text-sm text-gray-700">{selectedFile.name}</p>
+              </div>
+              
+              {isUploading ? (
+                <div className="w-full max-w-xs mx-auto">
+                  <Progress value={uploadProgress} className="h-2 mb-2" />
+                  <p className="text-xs text-gray-500">Importation en cours...</p>
+                </div>
+              ) : (
+                <Button 
+                  className="mt-2 bg-app-blue hover:bg-app-lightBlue" 
+                  onClick={handleUpload}
+                >
+                  Télécharger
+                </Button>
+              )}
             </div>
           )}
         </div>
+        
+        {templateAvailable && onTemplateDownload && (
+          <div className="mt-4 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
+              <p className="text-sm text-gray-700">Assurez-vous que votre fichier respecte le format requis</p>
+            </div>
+            <Button 
+              variant="outline" 
+              className="mt-2 text-app-blue border-app-blue hover:bg-blue-50"
+              onClick={onTemplateDownload}
+            >
+              Télécharger le modèle
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
