@@ -6,8 +6,9 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="mb-6">
-        <div className="bg-[#0A2647] text-white font-bold py-2 px-8 rounded text-xl">
-          MEMS
+        <div className="bg-[#0A2647] text-white font-bold py-3 px-8 rounded">
+          <div className="text-3xl">MEMS</div>
+          <div className="text-xs">Monitoring & Evaluation Management System</div>
         </div>
       </div>
       <div className="w-full max-w-md">
