@@ -26,7 +26,7 @@ type AppContextType = {
 
 const AppContext = React.createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // For testing purposes, let's initialize with a default authenticated user
   const [user, setUser] = React.useState<User | null>({
     id: 'currentUser',
