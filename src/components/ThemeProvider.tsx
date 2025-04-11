@@ -21,12 +21,12 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = React.createContext<ThemeProviderState>(initialState);
 
-export function ThemeProvider({
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
   defaultTheme = "system",
   storageKey = "ui-theme",
   ...props
-}: ThemeProviderProps) {
+}) => {
   const [theme, setTheme] = React.useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
@@ -59,11 +59,11 @@ export function ThemeProvider({
   );
 
   return (
-    <ThemeProviderContext.Provider {...props} value={value}>
+    <ThemeProviderContext.Provider value={value} {...props}>
       {children}
     </ThemeProviderContext.Provider>
   );
-}
+};
 
 export const useTheme = () => {
   const context = React.useContext(ThemeProviderContext);
